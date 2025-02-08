@@ -1,0 +1,41 @@
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './core/common/filters/all-exceptions.filter';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  app.enableCors({ origin: '*', credentials: true });
+
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
+  const config = new DocumentBuilder()
+    .setTitle('Teevil backend')
+    .setDescription(
+      'A platform that connects buyers and merchants in a unique way',
+    )
+    .addApiKey({ type: 'apiKey', name: 'jwt', in: 'header' }, 'jwt')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'apiKey',
+        name: 'jwt',
+        in: 'header',
+        description: 'Enter JWT token in the header',
+      },
+      'jwt',
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
+  const adapterHost = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(adapterHost));
+  await app.listen(process.env.PORT ?? 3000);
+
+  console.log(`Application is running on: ${await app.getUrl()}`);
+}
+bootstrap();
