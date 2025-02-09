@@ -17,7 +17,7 @@ export const config = {
     expiry: process.env.JWT_EXPIRY,
   },
   cloudinary: {
-    name: process.env.CLOUD_NAME,
+    cloud_name: process.env.CLOUDINARY_NAME,
     key: process.env.CLOUDINARY_API_KEY,
     secret: process.env.CLOUDINARY_API_SECRET,
   },

@@ -236,8 +236,9 @@ export class UserService {
       }
       const uploadedFile = await this.cloudinaryService.uploadFile(
         file,
-        'profileImages',
+        'profile-image',
       );
+
       return uploadedFile.url;
     } catch (error) {
       throw new HttpException(

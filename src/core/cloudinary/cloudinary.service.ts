@@ -7,9 +7,9 @@ import { config } from 'src/config/env.config';
 export class CloudinaryService {
   constructor() {
     cloudinary.config({
-      cloud_name: `${config.cloudinary.name}`,
-      api_key: `${config.cloudinary.key}`,
-      api_secret: `${config.cloudinary.secret}`,
+      cloud_name: config.cloudinary.cloud_name,
+      api_key: config.cloudinary.key,
+      api_secret: config.cloudinary.secret,
     });
   }
 
