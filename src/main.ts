@@ -14,7 +14,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Teevil backend')
     .setDescription(
-      'A platform that connects buyers and merchants in a unique way',
+      'Online platform that connects freelancers and clients, enabling collaboration, project management',
     )
     .addApiKey({ type: 'apiKey', name: 'jwt', in: 'header' }, 'jwt')
     .setVersion('1.0')

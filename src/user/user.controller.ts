@@ -1,4 +1,14 @@
-import { Controller, Post, Body, HttpStatus, Put, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpStatus,
+  Put,
+  Param,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import {
   CreateUserDto,
@@ -7,8 +17,15 @@ import {
   QuestionDto,
   VerifyOtpDto,
 } from './dto/create-user.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { successResponse } from 'src/config/response';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('api/v1/user')
 @ApiTags('User')
@@ -127,6 +144,44 @@ export class UserController {
       code: HttpStatus.OK,
       status: 'success',
       data,
+    });
+  }
+
+  @Put(':id/profile-picture')
+  @ApiOperation({
+    summary: 'Upload profile picture for the user, use form data (Key: file)',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile picture uploaded successfully',
+  })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProfilePicture(
+    @Param('id') userId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file)
+      throw new BadRequestException(
+        'Image file not upload, format must be JPEG/JPG',
+      );
+    await this.userService.uploadProfilePicture(userId, file);
+    return successResponse({
+      message: 'Profile picture uploaded successfully',
+      code: HttpStatus.OK,
+      status: 'success',
     });
   }
 }

@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
 import { MailService } from 'src/core/mail/email';
 import { Question, QuestionSchema } from './schemas/question.schema';
+import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { Question, QuestionSchema } from './schemas/question.schema';
     ]),
   ],
   controllers: [UserController],
-  providers: [UserService, MailService],
+  providers: [UserService, MailService, CloudinaryService],
 })
 export class UserModule {}

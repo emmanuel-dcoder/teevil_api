@@ -1,8 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
+import { config } from 'src/config/env.config';
 
 @Injectable()
 export class CloudinaryService {
+  constructor() {
+    cloudinary.config({
+      cloud_name: `${config.cloudinary.name}`,
+      api_key: `${config.cloudinary.key}`,
+      api_secret: `${config.cloudinary.secret}`,
+    });
+  }
+
   async uploadFile(
     file: Express.Multer.File,
     folder: string,

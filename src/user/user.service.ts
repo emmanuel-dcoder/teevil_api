@@ -3,6 +3,7 @@ import {
   BadRequestException,
   HttpException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   CreateUserDto,
@@ -23,6 +24,7 @@ import {
 } from 'src/core/common/utils/authentication';
 import { MailService } from 'src/core/mail/email';
 import { Question } from './schemas/question.schema';
+import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {
@@ -30,6 +32,7 @@ export class UserService {
     @InjectModel(User.name) private userModel: Model<User>,
     private readonly mailService: MailService,
     @InjectModel(Question.name) private questionModel: Model<Question>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -139,7 +142,6 @@ export class UserService {
         { otp },
         'otp_resend',
       );
-
       return { message: 'New OTP sent to email' };
     } catch (error) {
       throw new HttpException(
@@ -152,18 +154,12 @@ export class UserService {
   async forgotPassword(dto: ForgotPasswordDto) {
     try {
       const user = await this.userModel.findOne({ email: dto.email });
-
       if (!user) throw new BadRequestException('User not found');
-
       //generate random password
       const dummyPassword = AlphaNumeric(6);
-
       const hashedPassword = await hashPassword(dummyPassword);
-
       user.password = hashedPassword;
-
       await user.save();
-
       await this.mailService.sendMailNotification(
         dto.email,
         'Forgot Password',
@@ -195,20 +191,16 @@ export class UserService {
     const validateQuestion = await this.questionModel.findOne({
       user: new mongoose.Types.ObjectId(user),
     });
-
     if (validateQuestion) {
       const updateQuestion = await this.questionModel.findOneAndUpdate(
         { user: new mongoose.Types.ObjectId(user) },
         { ...restOfData },
         { new: true, runValidators: true, upsert: true },
       );
-
       if (!updateQuestion)
         throw new BadRequestException('Unable to update question');
-
       return updateQuestion;
     }
-
     const question = await this.questionModel.create({
       user: new mongoose.Types.ObjectId(user),
       ...restOfData,
@@ -217,5 +209,41 @@ export class UserService {
     if (!question) throw new BadRequestException('Unable to update question');
 
     return question;
+  }
+
+  async uploadProfilePicture(userId: string, file: Express.Multer.File) {
+    try {
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
+      if (!user) throw new NotFoundException('User not found');
+      const uploadImage = await this.uploadUserImage(file);
+      user.profileImage = uploadImage;
+
+      await user.save();
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  private async uploadUserImage(file: Express.Multer.File | undefined) {
+    try {
+      if (!file) {
+        return null;
+      }
+      const uploadedFile = await this.cloudinaryService.uploadFile(
+        file,
+        'profileImages',
+      );
+      return uploadedFile.url;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
   }
 }
