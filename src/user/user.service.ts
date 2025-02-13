@@ -239,7 +239,7 @@ export class UserService {
         'profile-image',
       );
 
-      return uploadedFile.url;
+      return uploadedFile.secure_url;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
