@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString } from 'class-validator';
-import { Experience, QuestionType } from '../enum/user.enum';
+import { QuestionType } from '../enum/user.enum';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -51,20 +51,6 @@ export class LoginDto {
   password: string;
 }
 
-export class PrimarySkillDto {
-  @ApiProperty()
-  @IsString()
-  skill: string;
-
-  @ApiProperty()
-  @IsString()
-  interest: string;
-
-  @ApiProperty()
-  @IsString()
-  paymentReference: string;
-}
-
 export class BioDto {
   @ApiProperty()
   @IsString()
@@ -73,6 +59,17 @@ export class BioDto {
   @ApiProperty()
   @IsString()
   bio: string;
+}
+
+export class QuestionDto {
+  @ApiPropertyOptional()
+  previousExperience: string;
+
+  @ApiPropertyOptional()
+  primarySkills: string;
+
+  @ApiPropertyOptional()
+  Bio: BioDto;
 }
 
 export class QuestionTypeListDto {

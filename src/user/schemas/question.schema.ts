@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { Experience } from '../enum/user.enum';
 
 export class PrimarySkill {
   @Prop({ type: { type: String }, default: null })
@@ -25,11 +24,11 @@ export type QuestionDocument = Question & Document;
 
 @Schema({ timestamps: true })
 export class Question {
-  @Prop({ type: String, enum: Experience, default: Experience.new })
+  @Prop({ type: String })
   previousExperience: string;
 
-  @Prop({ type: PrimarySkill })
-  primarySkills: PrimarySkill;
+  @Prop({ type: String })
+  primarySkills: string;
 
   @Prop({ type: Bio })
   Bio: Bio;
