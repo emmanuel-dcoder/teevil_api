@@ -8,6 +8,8 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Query,
+  Get,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -15,12 +17,14 @@ import {
   ForgotPasswordDto,
   LoginDto,
   QuestionDto,
+  QuestionTypeListDto,
   VerifyOtpDto,
 } from './dto/create-user.dto';
 import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -31,6 +35,46 @@ import { FileInterceptor } from '@nestjs/platform-express';
 @ApiTags('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Post('questions')
+  @ApiOperation({
+    summary: 'Post Questions',
+  })
+  @ApiBody({ type: QuestionTypeListDto })
+  @ApiResponse({ status: 200, description: 'Question created successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to create Question' })
+  async createQuestion(@Body() questionTypeListDto: QuestionTypeListDto) {
+    const data = await this.userService.createQuestion(questionTypeListDto);
+    return successResponse({
+      message: 'Question created successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Get('questions')
+  @ApiOperation({
+    summary: 'Get questions based on type on params',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: true,
+    description: 'Fetch questions based on type',
+    type: String,
+    example: `e.g experience, paymentType, interest, primarySkill`,
+  })
+  @ApiResponse({ status: 200, description: 'Question retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to retrieve questions' })
+  async fetchQuestions(@Query('type') type: string) {
+    const data = await this.userService.fetchQuestion(type);
+    return successResponse({
+      message: 'Question retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
 
   @Post()
   @ApiOperation({
@@ -137,7 +181,7 @@ export class UserController {
   @ApiBody({ type: QuestionDto })
   @ApiResponse({ status: 200, description: 'Question updated successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid data provided.' })
-  async updateQuestion(@Param('id') user: string, @Body() dto: QuestionDto) {
+  async updateQuestion(@Param('id') user: string, @Body() dto: any) {
     const data = await this.userService.updateQuestion(dto, user);
     return successResponse({
       message: 'Question updated successfully.',

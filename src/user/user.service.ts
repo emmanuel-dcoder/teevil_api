@@ -10,6 +10,7 @@ import {
   ForgotPasswordDto,
   LoginDto,
   QuestionDto,
+  QuestionTypeListDto,
   VerifyOtpDto,
 } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -25,15 +26,45 @@ import {
 import { MailService } from 'src/core/mail/email';
 import { Question } from './schemas/question.schema';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
+import { QuestionTypeList } from './schemas/question-type.schema';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    private readonly mailService: MailService,
+
     @InjectModel(Question.name) private questionModel: Model<Question>,
+    @InjectModel(QuestionTypeList.name)
+    private questionTypeModel: Model<QuestionTypeList>,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly mailService: MailService,
   ) {}
+
+  async createQuestion(questionTypeDto: QuestionTypeListDto) {
+    try {
+      const questions = await this.questionTypeModel.create(questionTypeDto);
+      if (!questions) throw new BadGatewayException('Unable to save questions');
+      return questions;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async fetchQuestion(type: string) {
+    try {
+      const questions = await this.questionTypeModel.find({ type });
+      if (!questions) throw new BadGatewayException('Unable to save questions');
+      return questions;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
 
   async create(createUserDto: CreateUserDto) {
     try {
@@ -180,7 +211,7 @@ export class UserService {
    * questions services
    */
 
-  async updateQuestion(dto: QuestionDto, user: string) {
+  async updateQuestion(dto: any, user: string) {
     const { ...restOfData } = dto;
     const validateUser = await this.userModel.findOne({
       _id: new mongoose.Types.ObjectId(user),

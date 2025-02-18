@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
-import { Experience } from '../enum/user.enum';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { Experience, QuestionType } from '../enum/user.enum';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -75,13 +75,28 @@ export class BioDto {
   bio: string;
 }
 
-export class QuestionDto {
-  @ApiPropertyOptional()
-  previousExperience: Experience;
+export class QuestionTypeListDto {
+  @ApiProperty()
+  @IsString()
+  type: QuestionType;
 
   @ApiPropertyOptional()
-  primarySkills: PrimarySkillDto;
+  @IsOptional()
+  @IsString()
+  experience: string;
 
   @ApiPropertyOptional()
-  Bio: BioDto;
+  @IsOptional()
+  @IsString()
+  skill: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  interest: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  paymentType: string;
 }
