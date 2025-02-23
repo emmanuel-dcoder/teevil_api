@@ -9,6 +9,7 @@ export const hashPassword = async (password: string) => {
 export const comparePassword = async (password: string, hash: string) => {
   return await bcrypt.compare(password, hash);
 };
+
 export const generateAccessToken = (data: any) => {
   const { id } = data;
   return jwt.sign({ ...data, id }, config.jwt.secret, {

@@ -23,7 +23,7 @@ export const verifyTokens = ({
 };
 
 interface CustomRequest extends Request {
-  user?: { id: string };
+  user?: { _id: string };
 }
 
 @Injectable()
@@ -37,20 +37,16 @@ export class VerifyTokenMiddleware implements NestMiddleware {
     })
       .then((decoded) => {
         const user = {
-          id: decoded['id'],
-          user_type: decoded['user_type'],
+          _id: decoded['_id'],
         };
         req.user = user;
         next();
       })
-      .catch(() => {
-        res
-          .status(401)
-          .json(
-            new ForbiddenErrorException(
-              'Your access token is either expired or invalid',
-            ).getResponse(),
-          );
+      .catch((error) => {
+        console.error('Token Verification Failed:', error);
+        res.status(401).json({
+          message: 'Your access token is either expired or invalid',
+        });
       });
   }
 }

@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -10,6 +15,7 @@ import {
   QuestionTypeList,
   QuestionTypeListSchema,
 } from './schemas/question-type.schema';
+import { VerifyTokenMiddleware } from 'src/core/common/middlewares';
 
 @Module({
   imports: [
@@ -22,4 +28,11 @@ import {
   controllers: [UserController],
   providers: [UserService, MailService, CloudinaryService],
 })
-export class UserModule {}
+export class UserModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(VerifyTokenMiddleware).forRoutes({
+      path: 'api/v1/user/logged-in',
+      method: RequestMethod.GET,
+    });
+  }
+}

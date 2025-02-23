@@ -10,6 +10,8 @@ import {
   BadRequestException,
   Query,
   Get,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -108,6 +110,28 @@ export class UserController {
     const data = await this.userService.login(dto);
     return successResponse({
       message: 'Login successful.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Get('logged-in')
+  @ApiOperation({
+    summary: 'Get logged in user',
+  })
+  @ApiResponse({ status: 200, description: 'User retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to retrieve user' })
+  async loggedInUser(@Req() req: any) {
+    const userId = req.user._id;
+    console.log('user details', req.user);
+
+    if (!req) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    const data = await this.userService.loggedInUser(userId);
+    return successResponse({
+      message: 'User retrieved successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,

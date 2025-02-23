@@ -117,7 +117,7 @@ export class UserService {
           'Unverified user, kindly verify your account',
         );
       }
-      const token = generateAccessToken({ userId: user._id });
+      const token = generateAccessToken({ _id: user._id });
 
       return {
         user: {
@@ -127,6 +127,38 @@ export class UserService {
           lastName: user.lastName,
         },
         token,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async loggedInUser(userId: string) {
+    try {
+      console.log('userid', userId);
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new BadRequestException('Invalid user ID format');
+      }
+
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
+
+      if (!user) throw new BadRequestException('Invalid user');
+
+      delete user.password;
+
+      return {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        isVerified: user.isVerified,
+        accountType: user.accountType,
+        profileImage: user.profileImage,
       };
     } catch (error) {
       throw new HttpException(
