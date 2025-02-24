@@ -29,7 +29,8 @@ interface CustomRequest extends Request {
 @Injectable()
 export class VerifyTokenMiddleware implements NestMiddleware {
   use(req: CustomRequest, res: Response, next: NextFunction) {
-    const accessToken = req.headers['jwt'] as string;
+    let accessToken = req.headers.authorization;
+    if (accessToken) accessToken = accessToken.split(' ')[1] as string;
 
     verifyTokens({
       token: accessToken,
