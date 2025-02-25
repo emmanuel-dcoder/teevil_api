@@ -1,6 +1,6 @@
 export enum accountType {
-  single = 'single-client-account',
-  agency = 'agency-account',
+  freelancer = 'freelancer',
+  client = 'client',
 }
 
 export enum QuestionType {
@@ -8,4 +8,15 @@ export enum QuestionType {
   primarySkill = 'primarySkill',
   interest = 'interest',
   paymentType = 'paymentType',
+  typeOfProject = 'typeOfProject',
+  workPreference = 'workPreference',
+  budget = 'budget',
+  agencyStaffNo = 'agencyStaffNo',
+  projectSize = 'projectSize',
+  hireType = 'hireType',
+}
+
+export enum clientType {
+  single = 'single',
+  agency = 'agency',
 }

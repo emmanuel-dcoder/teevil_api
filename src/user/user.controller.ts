@@ -61,7 +61,7 @@ export class UserController {
   })
   @ApiQuery({
     name: 'type',
-    required: true,
+    required: false,
     description: 'Fetch questions based on type',
     type: String,
     example: `e.g experience, paymentType, interest, primarySkill`,
@@ -72,6 +72,35 @@ export class UserController {
     const data = await this.userService.fetchQuestion(type);
     return successResponse({
       message: 'Question retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Get('client/questions')
+  @ApiOperation({
+    summary: 'Get clients questions based on type on params',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: true,
+    description: 'Fetch questions based on type',
+    type: String,
+    example: `e.g workPreference, budget, agencyStaffNo, projectSize, hireType`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Client question retrieved successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unable to retrieve client questions',
+  })
+  async fetchClientQuestion(@Query('type') type: string) {
+    const data = await this.userService.fetchQuestion(type);
+    return successResponse({
+      message: 'Client retrieved successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { accountType } from '../enum/user.enum';
+import { accountType, clientType } from '../enum/user.enum';
 
 export type UserDocument = User & Document;
 
@@ -29,6 +29,9 @@ export class User {
 
   @Prop({ type: String, enum: accountType, default: null })
   accountType: string;
+
+  @Prop({ type: String, enum: clientType, default: null })
+  clientType: string;
 
   @Prop({ required: false, default: null })
   verificationOtp: string;

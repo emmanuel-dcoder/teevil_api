@@ -22,6 +22,10 @@ export class CreateUserDto {
   @ApiProperty()
   @IsString()
   phone: string;
+
+  @ApiProperty()
+  @IsString()
+  accountType: string;
 }
 
 export class VerifyOtpDto {
@@ -96,4 +100,34 @@ export class QuestionTypeListDto {
   @IsOptional()
   @IsString()
   paymentType: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  hireType: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  projectSize: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  agencyStaffNo: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  budget: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  workPreference: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  typeOfProject: string;
 }
