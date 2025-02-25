@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString } from 'class-validator';
-import { QuestionType } from '../enum/user.enum';
+import { accountType, ClientType, QuestionType } from '../enum/user.enum';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -25,7 +25,7 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsString()
-  accountType: string;
+  accountType: accountType;
 }
 
 export class VerifyOtpDto {
@@ -63,6 +63,11 @@ export class BioDto {
   @ApiProperty()
   @IsString()
   bio: string;
+}
+export class ClientTypeDto {
+  @ApiProperty()
+  @IsString()
+  clientType: ClientType;
 }
 
 export class QuestionDto {

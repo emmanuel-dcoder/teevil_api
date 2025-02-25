@@ -16,7 +16,7 @@ export enum QuestionType {
   hireType = 'hireType',
 }
 
-export enum clientType {
+export enum ClientType {
   single = 'single',
   agency = 'agency',
 }

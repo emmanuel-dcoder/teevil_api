@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
+  ClientTypeDto,
   CreateUserDto,
   ForgotPasswordDto,
   LoginDto,
@@ -118,6 +119,30 @@ export class UserController {
     const data = await this.userService.create(createUserDto);
     return successResponse({
       message: 'User created successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Put('client-type/id')
+  @ApiOperation({
+    summary: 'Update Client type',
+    description: 'Updates client type to either single or agency.',
+  })
+  @ApiBody({ type: ClientTypeDto })
+  @ApiResponse({
+    status: 200,
+    description: 'client type updated successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid data provided.' })
+  async updateClientType(
+    @Param('id') user: string,
+    @Body() clientTypeDto: ClientTypeDto,
+  ) {
+    const data = await this.userService.updateUser(user, clientTypeDto);
+    return successResponse({
+      message: 'client type updated successfully.',
       code: HttpStatus.OK,
       status: 'success',
       data,

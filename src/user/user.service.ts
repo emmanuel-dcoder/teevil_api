@@ -104,6 +104,30 @@ export class UserService {
     }
   }
 
+  //update user
+  async updateUser(user: string, payload: any) {
+    try {
+      const validateUser = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(user),
+      });
+
+      if (!validateUser) throw new BadRequestException('Invalid user id');
+
+      await this.userModel.findOneAndUpdate(
+        {
+          _id: new mongoose.Types.ObjectId(user),
+        },
+        { ...payload },
+        { new: true, runValidators: true },
+      );
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
   async login(dto: LoginDto) {
     try {
       const user = await this.userModel.findOne({ email: dto.email });
@@ -244,34 +268,41 @@ export class UserService {
    */
 
   async updateQuestion(dto: any, user: string) {
-    const { ...restOfData } = dto;
-    const validateUser = await this.userModel.findOne({
-      _id: new mongoose.Types.ObjectId(user),
-    });
+    try {
+      const { ...restOfData } = dto;
+      const validateUser = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(user),
+      });
 
-    if (!validateUser) throw new BadRequestException('Invalid user id');
+      if (!validateUser) throw new BadRequestException('Invalid user id');
 
-    const validateQuestion = await this.questionModel.findOne({
-      user: new mongoose.Types.ObjectId(user),
-    });
-    if (validateQuestion) {
-      const updateQuestion = await this.questionModel.findOneAndUpdate(
-        { user: new mongoose.Types.ObjectId(user) },
-        { ...restOfData },
-        { new: true, runValidators: true, upsert: true },
+      const validateQuestion = await this.questionModel.findOne({
+        user: new mongoose.Types.ObjectId(user),
+      });
+      if (validateQuestion) {
+        const updateQuestion = await this.questionModel.findOneAndUpdate(
+          { user: new mongoose.Types.ObjectId(user) },
+          { ...restOfData },
+          { new: true, runValidators: true, upsert: true },
+        );
+        if (!updateQuestion)
+          throw new BadRequestException('Unable to update question');
+        return updateQuestion;
+      }
+      const question = await this.questionModel.create({
+        user: new mongoose.Types.ObjectId(user),
+        ...restOfData,
+      });
+
+      if (!question) throw new BadRequestException('Unable to update question');
+
+      return question;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
       );
-      if (!updateQuestion)
-        throw new BadRequestException('Unable to update question');
-      return updateQuestion;
     }
-    const question = await this.questionModel.create({
-      user: new mongoose.Types.ObjectId(user),
-      ...restOfData,
-    });
-
-    if (!question) throw new BadRequestException('Unable to update question');
-
-    return question;
   }
 
   async uploadProfilePicture(userId: string, file: Express.Multer.File) {
