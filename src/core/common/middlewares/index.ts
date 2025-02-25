@@ -23,7 +23,7 @@ export const verifyTokens = ({
 };
 
 interface CustomRequest extends Request {
-  user?: { _id: string };
+  user?: { _id: string; accountType: string };
 }
 
 @Injectable()
@@ -39,6 +39,7 @@ export class VerifyTokenMiddleware implements NestMiddleware {
       .then((decoded) => {
         const user = {
           _id: decoded['_id'],
+          accountType: decoded['accountType'],
         };
         req.user = user;
         next();

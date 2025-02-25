@@ -27,6 +27,7 @@ import { MailService } from 'src/core/mail/email';
 import { Question } from './schemas/question.schema';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { QuestionTypeList } from './schemas/question-type.schema';
+import { accountType } from './enum/user.enum';
 
 @Injectable()
 export class UserService {
@@ -141,7 +142,10 @@ export class UserService {
           'Unverified user, kindly verify your account',
         );
       }
-      const token = generateAccessToken({ _id: user._id });
+      const token = generateAccessToken({
+        _id: user._id,
+        accountType: user.accountType,
+      });
 
       return {
         user: {
@@ -149,6 +153,7 @@ export class UserService {
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
+          accountType: user.accountType,
         },
         token,
       };

@@ -88,7 +88,7 @@ export class UserController {
     required: true,
     description: 'Fetch questions based on type',
     type: String,
-    example: `e.g workPreference, budget, agencyStaffNo, projectSize, hireType`,
+    example: `e.g workPreference, budget, typeOfProject, agencyStaffNo, projectSize, hireType`,
   })
   @ApiResponse({
     status: 200,
