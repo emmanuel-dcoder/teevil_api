@@ -103,7 +103,10 @@ export class QuestionDto {
   typeOfProject: string;
 
   @ApiPropertyOptional()
-  Bio: BioDto;
+  Bio: string;
+
+  @ApiPropertyOptional()
+  title: string;
 }
 
 export class QuestionTypeListDto {

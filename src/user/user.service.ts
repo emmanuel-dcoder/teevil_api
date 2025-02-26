@@ -269,7 +269,16 @@ export class UserService {
 
   async updateQuestion(dto: any, user: string) {
     try {
-      const { ...restOfData } = dto;
+      const { title, bio, ...restOfData } = dto;
+
+      // Ensure the bio structure matches the schema
+      if (title || bio) {
+        restOfData.bio = {
+          title: title || null,
+          bio: bio || null,
+        };
+      }
+
       const validateUser = await this.userModel.findOne({
         _id: new mongoose.Types.ObjectId(user),
       });

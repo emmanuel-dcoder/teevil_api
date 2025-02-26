@@ -55,7 +55,7 @@ export class Question {
   typeOfProject: string;
 
   @Prop({ type: Bio })
-  Bio: Bio;
+  bio: Bio;
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User', required: true })
   user: mongoose.Types.ObjectId;
