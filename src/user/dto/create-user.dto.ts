@@ -79,6 +79,30 @@ export class QuestionDto {
   primarySkills: string;
 
   @ApiPropertyOptional()
+  interest: string;
+
+  @ApiPropertyOptional()
+  paymentType: string;
+
+  @ApiPropertyOptional()
+  hireType: string;
+
+  @ApiPropertyOptional()
+  projectSize: string;
+
+  @ApiPropertyOptional()
+  agencyStaffNo: string;
+
+  @ApiPropertyOptional()
+  budget: string;
+
+  @ApiPropertyOptional()
+  workPreference: string;
+
+  @ApiPropertyOptional()
+  typeOfProject: string;
+
+  @ApiPropertyOptional()
   Bio: BioDto;
 }
 

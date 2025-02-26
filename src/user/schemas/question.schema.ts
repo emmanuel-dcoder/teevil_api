@@ -30,6 +30,30 @@ export class Question {
   @Prop({ type: String })
   primarySkills: string;
 
+  @Prop({ type: String })
+  interest: string;
+
+  @Prop({ type: String })
+  paymentType: string;
+
+  @Prop({ type: String })
+  hireType: string;
+
+  @Prop({ type: String })
+  projectSize: string;
+
+  @Prop({ type: String })
+  agencyStaffNo: string;
+
+  @Prop({ type: String })
+  budget: string;
+
+  @Prop({ type: String })
+  workPreference: string;
+
+  @Prop({ type: String })
+  typeOfProject: string;
+
   @Prop({ type: Bio })
   Bio: Bio;
 
