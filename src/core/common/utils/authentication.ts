@@ -11,8 +11,8 @@ export const comparePassword = async (password: string, hash: string) => {
 };
 
 export const generateAccessToken = (data: any) => {
-  const { id } = data;
-  return jwt.sign({ ...data, id }, config.jwt.secret, {
+  const { _id } = data;
+  return jwt.sign({ ...data, _id }, config.jwt.secret, {
     expiresIn: config.jwt.expiry as any,
   });
 };

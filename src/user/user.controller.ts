@@ -296,10 +296,7 @@ export class UserController {
     @Param('id') userId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    if (!file)
-      throw new BadRequestException(
-        'Image file not upload, format must be JPEG/JPG',
-      );
+    if (!file) throw new BadRequestException('file or image not found');
     await this.userService.uploadProfilePicture(userId, file);
     return successResponse({
       message: 'Profile picture uploaded successfully',
