@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  ClientTypeDto,
   CreateUserDto,
   ForgotPasswordDto,
   LoginDto,
@@ -101,7 +102,7 @@ export class UserService {
   }
 
   //update user
-  async updateUser(user: string, payload: any) {
+  async updateUser(user: string, payload: ClientTypeDto) {
     try {
       const validateUser = await this.userModel.findOne({
         _id: new mongoose.Types.ObjectId(user),

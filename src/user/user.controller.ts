@@ -125,7 +125,7 @@ export class UserController {
     });
   }
 
-  @Put('client-type/id')
+  @Put('client-type/:id')
   @ApiOperation({
     summary: 'Update Client type',
     description: 'Updates client type to either single or agency.',
