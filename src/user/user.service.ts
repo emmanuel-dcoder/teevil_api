@@ -70,8 +70,8 @@ export class UserService {
   async create(createUserDto: CreateUserDto) {
     try {
       const { email, password } = createUserDto;
-      // const validateUser = await this.userModel.findOne({ email });
-      // if (validateUser) throw new BadGatewayException('Email already exist');
+      const validateUser = await this.userModel.findOne({ email });
+      if (validateUser) throw new BadGatewayException('Email already exist');
       const otp = RandomSixDigits();
       const hashedPassword = await hashPassword(password);
       const createUser = await this.userModel.create({
