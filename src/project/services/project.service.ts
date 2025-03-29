@@ -20,7 +20,8 @@ export class ProjectService {
 
   async createProject(payload: CreateProjectDto & { createdBy: string }) {
     try {
-      const { createdBy, title, description, deadline, section } = payload;
+      const { createdBy, title, description, deadline, section, projectType } =
+        payload;
 
       const validateProject = await this.projectModel.findOne({
         createdBy: new mongoose.Types.ObjectId(createdBy),
@@ -35,6 +36,7 @@ export class ProjectService {
         title,
         description,
         deadline,
+        projectType,
       });
 
       if (!project) throw new BadRequestException('Unable to create project');

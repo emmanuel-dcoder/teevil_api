@@ -11,6 +11,14 @@ export class Project {
   @Prop({ required: true })
   description: string;
 
+  @Prop({
+    required: true,
+    type: String,
+    enum: ['shared', 'personal', 'client'],
+    default: null,
+  })
+  projectType: string;
+
   @Prop({ default: null })
   deadline: Date;
 

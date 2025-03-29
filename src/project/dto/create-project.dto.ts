@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsDate, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
+import { projectType } from '../enum/project.enum';
 
 export class CreateProjectDto {
   @ApiProperty()
@@ -10,6 +11,10 @@ export class CreateProjectDto {
   @ApiProperty()
   @IsString()
   description: string;
+
+  @ApiProperty()
+  @IsString()
+  projectType: projectType;
 
   @ApiPropertyOptional({ type: String, format: 'date-time' })
   @IsDate()
