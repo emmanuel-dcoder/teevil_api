@@ -24,6 +24,13 @@ export class Task {
   })
   priority: 'high' | 'medium' | 'low' | 'casual';
 
+  @Prop({
+    type: String,
+    enum: ['todo', 'in-progress', 'completed'],
+    default: 'todo',
+  })
+  status: 'todo' | 'in-progress' | 'completed';
+
   @Prop({ type: mongoose.Types.ObjectId, ref: 'Section' })
   section: mongoose.Types.ObjectId;
 

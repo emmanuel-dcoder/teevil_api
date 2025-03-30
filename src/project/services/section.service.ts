@@ -79,7 +79,12 @@ export class SectionService {
       const sections = await this.sectionModel
         .find(filter)
         .populate('usersAdded')
-        .populate('project')
+        .populate({
+          path: 'usersAdded',
+          populate: {
+            path: 'firstName lastName profileImage',
+          },
+        })
         .skip(skip)
         .limit(limit);
 
@@ -107,7 +112,7 @@ export class SectionService {
         .populate({
           path: 'usersAdded',
           populate: {
-            path: 'firstName lastName',
+            path: 'firstName lastName profileImage',
           },
         })
         .populate('project');
