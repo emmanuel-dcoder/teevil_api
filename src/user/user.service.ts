@@ -27,7 +27,6 @@ import { MailService } from 'src/core/mail/email';
 import { Question } from './schemas/question.schema';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { QuestionTypeList } from './schemas/question-type.schema';
-import { accountType } from './enum/user.enum';
 
 @Injectable()
 export class UserService {

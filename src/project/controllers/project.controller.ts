@@ -21,9 +21,9 @@ import {
 } from '@nestjs/swagger';
 import { successResponse } from 'src/config/response';
 import { ProjectService } from '../services/project.service';
-import { CreateProjectDto } from '../dto/create-project.dto';
+import { CreateInviteDto, CreateProjectDto } from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
-import { PaginationDto } from 'src/core/common/pagination/paginaton';
+import { PaginationDto } from 'src/core/common/pagination/pagination';
 
 @Controller('api/v1/project')
 @ApiTags('Project')
@@ -37,17 +37,61 @@ export class ProjectController {
   @ApiResponse({ status: 201, description: 'Project created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async create(@Req() req: any, @Body() createProjectDto: CreateProjectDto) {
-    const userId = req.user._id;
+    const userId = req.user?._id;
     if (!userId) throw new UnauthorizedException('User not authenticated');
 
-    const data = await this.projectService.createProject({
-      ...createProjectDto,
-      createdBy: userId,
-    });
+    try {
+      const data = await this.projectService.createProject({
+        ...createProjectDto,
+        createdBy: userId,
+      });
+
+      return successResponse({
+        message: 'Project created successfully',
+        code: HttpStatus.CREATED,
+        status: 'success',
+        data,
+      });
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
+  }
+
+  //add invite or collaborator
+  @Post('invite')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create an invite for a project' })
+  @ApiResponse({ status: 201, description: 'Invite created successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'user@example.com' },
+        projectId: { type: 'string', example: '64f7a2b9a7e5b2c5d7a9c6f1' },
+        sections: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ['64f7a2b9a7e5b2c5d7a9c6f2', '64f7a2b9a7e5b2c5d7a9c6f3'],
+        },
+      },
+      required: ['email', 'projectId', 'sections'],
+    },
+  })
+  async createInvite(
+    @Body() createInviteDto: CreateInviteDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user?._id;
+    if (!userId) throw new UnauthorizedException('User not authenticated');
+    const data = await this.projectService.createInvite(
+      createInviteDto,
+      userId,
+    );
 
     return successResponse({
-      message: 'Project created successfully',
-      code: HttpStatus.OK,
+      message: 'Invite created successfully',
+      code: HttpStatus.CREATED,
       status: 'success',
       data,
     });
@@ -77,14 +121,25 @@ export class ProjectController {
     example: 'project name',
     description: 'Search query for project title',
   })
-  async findAll(@Query() query: PaginationDto) {
-    const data = await this.projectService.findAll(query);
-    return successResponse({
-      message: 'Projects retrieved successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
+  async findAll(@Query() query: PaginationDto, @Req() req: any) {
+    try {
+      const userId = req.user?._id;
+      if (!userId) throw new UnauthorizedException('User not authenticated');
+      const { page, limit, search } = query;
+      const data = await this.projectService.findAll(
+        { page, limit, search },
+        userId,
+      );
+
+      return successResponse({
+        message: 'Projects retrieved successfully',
+        code: HttpStatus.OK,
+        status: 'success',
+        data,
+      });
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
   }
 
   @Get(':id')
@@ -92,13 +147,17 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'Project retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async findOne(@Param('id') id: string) {
-    const data = await this.projectService.findOne(id);
-    return successResponse({
-      message: 'Project retrieved successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
+    try {
+      const data = await this.projectService.findOne(id);
+      return successResponse({
+        message: 'Project retrieved successfully',
+        code: HttpStatus.OK,
+        status: 'success',
+        data,
+      });
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
   }
 
   @Put(':id')
@@ -106,13 +165,17 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'Project updated successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async update(@Param('id') id: string, @Body() updateData: UpdateProjectDto) {
-    const data = await this.projectService.update(id, updateData);
-    return successResponse({
-      message: 'Project updated successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
+    try {
+      const data = await this.projectService.update(id, updateData);
+      return successResponse({
+        message: 'Project updated successfully',
+        code: HttpStatus.OK,
+        status: 'success',
+        data,
+      });
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
   }
 
   @Delete(':id')
@@ -120,12 +183,16 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'Project deleted successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async delete(@Param('id') id: string) {
-    const data = await this.projectService.delete(id);
-    return successResponse({
-      message: 'Project deleted successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
+    try {
+      const data = await this.projectService.delete(id);
+      return successResponse({
+        message: 'Project deleted successfully',
+        code: HttpStatus.OK,
+        status: 'success',
+        data,
+      });
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
   }
 }

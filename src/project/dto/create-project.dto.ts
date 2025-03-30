@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsDate, IsArray, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsDate,
+  IsArray,
+  IsEmail,
+  IsMongoId,
+  ArrayNotEmpty,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { projectType } from '../enum/project.enum';
 
@@ -34,6 +41,19 @@ export class CreateSectionDto {
 
   @ApiProperty()
   @IsString()
-  @IsUUID()
+  @IsMongoId()
   projectId: string;
+}
+
+export class CreateInviteDto {
+  @IsEmail()
+  email: string;
+
+  @IsMongoId()
+  projectId: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsMongoId({ each: true })
+  sections: string[];
 }

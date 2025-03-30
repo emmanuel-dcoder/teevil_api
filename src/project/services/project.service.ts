@@ -7,16 +7,20 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Project } from '../schemas/project.schema';
-import { CreateProjectDto } from '../dto/create-project.dto';
+import { CreateInviteDto, CreateProjectDto } from '../dto/create-project.dto';
 import { Section } from '../schemas/section.schema';
 import { UpdateProjectDto } from '../dto/update-project.dto';
-import { PaginationDto } from 'src/core/common/pagination/paginaton';
+import { PaginationDto } from 'src/core/common/pagination/pagination';
+import { MailService } from 'src/core/mail/email';
+import { Invite } from '../schemas/invite.schema';
 
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectModel(Project.name) private projectModel: Model<Project>,
     @InjectModel(Section.name) private sectionModel: Model<Section>,
+    @InjectModel(Invite.name) private inviteModel: Model<Invite>,
+    private readonly mailService: MailService,
   ) {}
 
   async createProject(payload: CreateProjectDto & { createdBy: string }) {
@@ -25,7 +29,10 @@ export class ProjectService {
         payload;
 
       const validateProject = await this.projectModel.findOne({
-        createdBy: new mongoose.Types.ObjectId(createdBy),
+        $or: [
+          { createdBy: new mongoose.Types.ObjectId(createdBy) },
+          { usersAdded: { $in: [new mongoose.Types.ObjectId(createdBy)] } },
+        ],
         title,
       });
 
@@ -62,12 +69,61 @@ export class ProjectService {
     }
   }
 
-  async findAll(query: PaginationDto) {
+  // add or invite collaborator
+  async createInvite(payload: CreateInviteDto, userId: string) {
+    try {
+      const { email, projectId, sections } = payload;
+
+      const projectExists = await this.projectModel.findOne({
+        _id: new mongoose.Types.ObjectId(projectId),
+        $or: [
+          { createdBy: new mongoose.Types.ObjectId(userId) },
+          { usersAdded: { $in: [new mongoose.Types.ObjectId(userId)] } },
+        ],
+      });
+      if (!projectExists) throw new NotFoundException('Project not found');
+
+      const invite = await this.inviteModel.create({
+        email,
+        projectId: new mongoose.Types.ObjectId(projectId),
+        sections: sections.map((id) => new mongoose.Types.ObjectId(id)),
+      });
+
+      try {
+        await this.mailService.sendMailNotification(
+          email,
+          'Teevil: Project Invitation',
+          {
+            name: projectExists.title,
+            acceptUrl: `https://google.com`,
+            rejectUrl: `https://google.com`,
+          },
+          'project_invite',
+        );
+      } catch (error) {
+        console.log('email notification error:', error);
+      }
+
+      return invite;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async findAll(query: PaginationDto, userId: string) {
     try {
       const { search, page = 1, limit = 10 } = query;
       const skip = (page - 1) * limit;
 
-      const filter: any = {};
+      const filter: any = {
+        $or: [
+          { createdBy: new mongoose.Types.ObjectId(userId) },
+          { usersAdded: { $in: [new mongoose.Types.ObjectId(userId)] } },
+        ],
+      };
       if (search) {
         filter.title = { $regex: search, $options: 'i' };
       }
