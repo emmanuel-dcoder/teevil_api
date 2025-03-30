@@ -29,14 +29,14 @@ export class Project {
   })
   status: 'in-progress' | 'review' | 'completed' | 'pending';
 
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
+  createdBy: mongoose.Types.ObjectId;
+
   @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Section' }] })
   sections: mongoose.Types.ObjectId[];
 
   @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'User' }] })
   usersAdded: mongoose.Types.ObjectId[];
-
-  @Prop({ type: { type: mongoose.Types.ObjectId, ref: 'User' } })
-  createdBy: mongoose.Types.ObjectId;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

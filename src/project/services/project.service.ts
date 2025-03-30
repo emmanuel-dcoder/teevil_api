@@ -10,6 +10,7 @@ import { Project } from '../schemas/project.schema';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { Section } from '../schemas/section.schema';
 import { UpdateProjectDto } from '../dto/update-project.dto';
+import { PaginationDto } from 'src/core/common/pagination/paginaton';
 
 @Injectable()
 export class ProjectService {
@@ -41,12 +42,16 @@ export class ProjectService {
 
       if (!project) throw new BadRequestException('Unable to create project');
 
-      await this.sectionModel.insertMany(
+      const sections = await this.sectionModel.insertMany(
         section.map((title) => ({
           title,
           project: new mongoose.Types.ObjectId(project._id),
         })),
       );
+
+      const sectionIds = sections.map((sec) => sec._id);
+      project.sections = sectionIds;
+      await project.save();
 
       return project;
     } catch (error) {
@@ -57,9 +62,31 @@ export class ProjectService {
     }
   }
 
-  async findAll() {
+  async findAll(query: PaginationDto) {
     try {
-      return await this.projectModel.find();
+      const { search, page = 1, limit = 10 } = query;
+      const skip = (page - 1) * limit;
+
+      const filter: any = {};
+      if (search) {
+        filter.title = { $regex: search, $options: 'i' };
+      }
+
+      const projects = await this.projectModel
+        .find(filter)
+        .populate('sections')
+        .skip(skip)
+        .limit(limit);
+
+      const total = await this.projectModel.countDocuments(filter);
+
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        data: projects,
+      };
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
@@ -70,11 +97,19 @@ export class ProjectService {
 
   async findOne(id: string) {
     try {
-      const project = await this.projectModel.findById(id);
+      const project = await this.projectModel.findById(id).populate({
+        path: 'sections',
+        populate: {
+          path: 'tasks',
+        },
+      });
       if (!project) throw new NotFoundException('Project not found');
       return project;
     } catch (error) {
-      throw new HttpException(error.message, 500);
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
     }
   }
 

@@ -10,12 +10,20 @@ import {
   Param,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { successResponse } from 'src/config/response';
 import { ProjectService } from '../services/project.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
+import { PaginationDto } from 'src/core/common/pagination/paginaton';
 
 @Controller('api/v1/project')
 @ApiTags('Project')
@@ -46,10 +54,31 @@ export class ProjectController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all projects' })
+  @ApiOperation({ summary: 'Get all projects with search and pagination' })
   @ApiResponse({ status: 200, description: 'Projects retrieved successfully' })
-  async findAll() {
-    const data = await this.projectService.findAll();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 10,
+    description: 'Number of items per page (default: 10)',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    example: 'project name',
+    description: 'Search query for project title',
+  })
+  async findAll(@Query() query: PaginationDto) {
+    const data = await this.projectService.findAll(query);
     return successResponse({
       message: 'Projects retrieved successfully',
       code: HttpStatus.OK,
