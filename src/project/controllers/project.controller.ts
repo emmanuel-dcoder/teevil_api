@@ -25,8 +25,8 @@ import { CreateInviteDto, CreateProjectDto } from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 
-@Controller('api/v1/project')
 @ApiTags('Project')
+@Controller('api/v1/project')
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 

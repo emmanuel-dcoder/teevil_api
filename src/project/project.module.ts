@@ -7,6 +7,8 @@ import { VerifyTokenMiddleware } from 'src/core/common/middlewares';
 import { Section, SectionSchema } from './schemas/section.schema';
 import { Invite, InviteSchema } from './schemas/invite.schema';
 import { MailService } from 'src/core/mail/email';
+import { SectionController } from './controllers/section.controller';
+import { SectionService } from './services/section.service';
 
 @Module({
   imports: [
@@ -16,11 +18,13 @@ import { MailService } from 'src/core/mail/email';
       { name: Invite.name, schema: InviteSchema },
     ]),
   ],
-  controllers: [ProjectController],
-  providers: [ProjectService, MailService],
+  controllers: [ProjectController, SectionController],
+  providers: [ProjectService, MailService, SectionService],
 })
 export class ProjectModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(VerifyTokenMiddleware).forRoutes(ProjectController);
+    consumer
+      .apply(VerifyTokenMiddleware)
+      .forRoutes(ProjectController, SectionController);
   }
 }

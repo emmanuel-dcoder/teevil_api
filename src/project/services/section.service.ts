@@ -1,12 +1,19 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Project } from '../schemas/project.schema';
 import { CreateSectionDto } from '../dto/create-project.dto';
 import { Section } from '../schemas/section.schema';
+import { PaginationDto } from 'src/core/common/pagination/pagination';
+import { UpdateSectionDto } from '../dto/update-project.dto';
 
 @Injectable()
-export class ProjectService {
+export class SectionService {
   constructor(
     @InjectModel(Project.name) private projectModel: Model<Project>,
     @InjectModel(Section.name) private sectionModel: Model<Section>,
@@ -46,6 +53,96 @@ export class ProjectService {
       );
 
       return section;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async findAll(query: PaginationDto, userId: string, projectId: string) {
+    try {
+      const { search, page = 1, limit = 10 } = query;
+      const skip = (page - 1) * limit;
+
+      const filter: any = {
+        $or: [
+          { project: new mongoose.Types.ObjectId(projectId) },
+          { usersAdded: { $in: [new mongoose.Types.ObjectId(userId)] } },
+        ],
+      };
+      if (search) {
+        filter.title = { $regex: search, $options: 'i' };
+      }
+
+      const sections = await this.sectionModel
+        .find(filter)
+        .populate('usersAdded')
+        .populate('project')
+        .skip(skip)
+        .limit(limit);
+
+      const total = await this.sectionModel.countDocuments(filter);
+
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        data: sections,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async findOne(id: string) {
+    try {
+      const section = await this.sectionModel
+        .findById(id)
+        .populate({
+          path: 'usersAdded',
+          populate: {
+            path: 'firstName lastName',
+          },
+        })
+        .populate('project');
+      if (!section) throw new NotFoundException('Section not found');
+      return section;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async update(id: string, updateData: UpdateSectionDto) {
+    try {
+      const updateSection = await this.projectModel.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true },
+      );
+      if (!updateSection) throw new NotFoundException('Section not found');
+      return updateSection;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async delete(id: string) {
+    try {
+      const deleteSection = await this.sectionModel.findByIdAndDelete(id);
+      if (!deleteSection) throw new NotFoundException('Section not found');
+      return { message: 'Section deleted successfully' };
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
