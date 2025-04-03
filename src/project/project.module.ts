@@ -9,6 +9,10 @@ import { Invite, InviteSchema } from './schemas/invite.schema';
 import { MailService } from 'src/core/mail/email';
 import { SectionController } from './controllers/section.controller';
 import { SectionService } from './services/section.service';
+import { Task, TaskSchema } from './schemas/Task.schema';
+import { TaskController } from './controllers/task.controller';
+import { TaskService } from './services/task.service';
+import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 
 @Module({
   imports: [
@@ -16,15 +20,22 @@ import { SectionService } from './services/section.service';
       { name: Project.name, schema: ProjectSchema },
       { name: Section.name, schema: SectionSchema },
       { name: Invite.name, schema: InviteSchema },
+      { name: Task.name, schema: TaskSchema },
     ]),
   ],
-  controllers: [ProjectController, SectionController],
-  providers: [ProjectService, MailService, SectionService],
+  controllers: [ProjectController, SectionController, TaskController],
+  providers: [
+    ProjectService,
+    MailService,
+    SectionService,
+    TaskService,
+    CloudinaryService,
+  ],
 })
 export class ProjectModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(VerifyTokenMiddleware)
-      .forRoutes(ProjectController, SectionController);
+      .forRoutes(ProjectController, SectionController, TaskController);
   }
 }

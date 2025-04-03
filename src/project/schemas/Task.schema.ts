@@ -11,11 +11,11 @@ export class Task {
   @Prop({
     type: {
       content: { type: String, default: null },
-      image: { type: String, default: null },
+      image: [{ type: String, default: null }],
     },
     default: {},
   })
-  description: { content: string; image: string };
+  description: { content: string; image: string[] };
 
   @Prop({
     type: String,
@@ -34,7 +34,10 @@ export class Task {
   @Prop({ type: mongoose.Types.ObjectId, ref: 'Section' })
   section: mongoose.Types.ObjectId;
 
-  @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'User' }] })
+  @Prop({
+    type: [{ type: mongoose.Types.ObjectId, ref: 'User' }],
+    required: true,
+  })
   assignedTo: mongoose.Types.ObjectId[];
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'Project', required: true })
