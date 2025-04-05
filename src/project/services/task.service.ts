@@ -111,13 +111,19 @@ export class TaskService {
     }
   }
 
-  async fetchAll(query: PaginationDto, sectionId: string) {
+  async fetchAll(query: PaginationDto, sectionId: string, status?: string) {
     try {
       const { search, page = 1, limit = 10 } = query;
       const skip = (page - 1) * limit;
 
       let filter: any = { section: new mongoose.Types.ObjectId(sectionId) };
 
+      // Add a filter for the status if it is provided
+      if (status) {
+        filter.status = status; // This will filter tasks based on the status
+      }
+
+      // If a search query is provided, add it to the filter
       if (search) {
         filter.title = { $regex: search, $options: 'i' };
       }
@@ -145,7 +151,7 @@ export class TaskService {
         .skip(skip)
         .limit(limit);
 
-      // Use countDocuments on the task model itself instead of the subTask model
+      // Count the total number of tasks that match the filter criteria
       const total = await this.taskModel.countDocuments(filter);
 
       return {

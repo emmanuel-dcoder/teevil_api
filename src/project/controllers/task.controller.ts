@@ -139,8 +139,19 @@ export class TaskController {
     example: '669a6197c3e587bd6e4a63ef',
     description: 'ID of section',
   })
-  async fetchAll(query: PaginationDto, @Query('sectionId') sectionId: string) {
-    const data = await this.taskService.fetchAll(query, sectionId);
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    enum: ['todo', 'in-progress', 'completed'], // Example statuses; adjust to your needs
+    description: 'Filter tasks by status',
+  })
+  async fetchAll(
+    query: PaginationDto,
+    @Query('sectionId') sectionId: string,
+    @Query('status') status: string,
+  ) {
+    const data = await this.taskService.fetchAll(query, sectionId, status);
     return successResponse({
       message: 'Tasks retrieved',
       code: HttpStatus.OK,
