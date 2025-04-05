@@ -126,8 +126,19 @@ export class CreateTaskDto {
     description: 'Due date of the task',
     required: false,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsDate()
   @Type(() => Date)
-  dueDate: Date;
+  dueDate?: Date;
+
+  @ApiProperty({
+    type: [String],
+    description: 'List of subtasks to be created with the task',
+    required: false,
+    example: ['Subtask 1', 'Subtask 2'],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tasks?: string[];
 }

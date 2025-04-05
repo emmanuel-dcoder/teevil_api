@@ -32,7 +32,7 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new task' })
+  @ApiOperation({ summary: 'Create a new task with optional subtasks' })
   @ApiResponse({
     status: 201,
     description: 'Task successfully created',
@@ -53,6 +53,12 @@ export class TaskController {
         project: { type: 'string', example: '613b6c3a5b41a2f123456789' },
         dueDate: { type: 'string', format: 'date-time' },
         files: { type: 'array', items: { type: 'string', format: 'binary' } },
+        tasks: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'List of subtasks to be created with the task',
+          example: ['Subtask 1', 'Subtask 2'],
+        },
       },
     },
   })

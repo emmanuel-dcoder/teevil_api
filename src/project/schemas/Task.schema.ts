@@ -1,8 +1,20 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
-export type TaskDocument = Task & Document;
+export type SubTaskDocument = SubTask & Document;
 
+@Schema({ timestamps: true })
+export class SubTask {
+  @Prop({ required: true })
+  subTitle: string;
+
+  @Prop({ default: false })
+  status: boolean;
+}
+
+export const SubTaskSchema = SchemaFactory.createForClass(SubTask);
+
+export type TaskDocument = Task & Document;
 @Schema({ timestamps: true })
 export class Task {
   @Prop({ required: true })
@@ -42,6 +54,12 @@ export class Task {
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'Project', required: true })
   project: mongoose.Types.ObjectId;
+
+  // @Prop({
+  //   type: [{ type: mongoose.Types.ObjectId, ref: 'SubTask' }],
+  //   required: false,
+  // })
+  // subTasks: mongoose.Types.ObjectId[];
 
   @Prop({ required: true })
   dueDate: Date;
