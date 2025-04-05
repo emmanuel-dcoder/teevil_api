@@ -9,6 +9,9 @@ import {
   HttpStatus,
   UseInterceptors,
   UploadedFiles,
+  Put,
+  HttpCode,
+  Query,
 } from '@nestjs/common';
 
 import {
@@ -17,14 +20,16 @@ import {
   ApiResponse,
   ApiConsumes,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { TaskService } from '../services/task.service';
 import { Task } from '../schemas/task.schema';
 
 import { successResponse } from 'src/config/response';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { CreateTaskDto } from '../dto/create-project.dto';
+import { CreateTaskDto, UpdateSubTaskDto } from '../dto/create-project.dto';
 import { UpdateTaskDto } from '../dto/update-project.dto';
+import { PaginationDto } from 'src/core/common/pagination/pagination';
 
 @ApiTags('Tasks')
 @Controller('api/v1/tasks')
@@ -75,24 +80,69 @@ export class TaskController {
     });
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Fetch all tasks' })
-  async fetchAll() {
-    const data = await this.taskService.fetchAll();
+  @Put('sub-task')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: UpdateSubTaskDto })
+  @ApiOperation({ summary: 'Delete a subtask by ID' })
+  @ApiResponse({ status: 200, description: 'Subtask updated successfully' })
+  @ApiResponse({ status: 404, description: 'Unable to update sub task' })
+  async updateSubTask(@Body() updateSubTaskDto: UpdateSubTaskDto) {
+    const updated = await this.taskService.updateSubTask(updateSubTaskDto);
+    return {
+      status: 'success',
+      message: 'Subtask updated successfully',
+      data: updated,
+    };
+  }
+
+  @Delete('sub-task/:id')
+  @ApiOperation({ summary: 'Delete a subtask by ID' })
+  @ApiResponse({ status: 200, description: 'Subtask successfully deleted' })
+  @ApiResponse({ status: 404, description: 'Subtask not found' })
+  async deleteSubTask(@Param('id') subTaskId: string) {
+    const result = await this.taskService.deleteSubTask(subTaskId);
     return successResponse({
-      message: 'Tasks retrieved',
+      message: 'Subtask deleted',
       code: HttpStatus.OK,
       status: 'success',
-      data,
+      data: result,
     });
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Fetch a task by ID' })
-  async fetchOne(@Param('id') id: string) {
-    const data = await this.taskService.fetchOne(id);
+  @Get()
+  @ApiOperation({ summary: 'Fetch all tasks' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 10,
+    description: 'Number of items per page (default: 10)',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    example: 'project name',
+    description: 'Search query for project title',
+  })
+  @ApiQuery({
+    name: 'sectionId',
+    required: true,
+    type: String,
+    example: '669a6197c3e587bd6e4a63ef',
+    description: 'ID of section',
+  })
+  async fetchAll(query: PaginationDto, @Query('sectionId') sectionId: string) {
+    const data = await this.taskService.fetchAll(query, sectionId);
     return successResponse({
-      message: 'Task retrieved',
+      message: 'Tasks retrieved',
       code: HttpStatus.OK,
       status: 'success',
       data,

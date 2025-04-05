@@ -1,15 +1,16 @@
 import {
+  BadRequestException,
   HttpException,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { SubTask, Task } from '../schemas/task.schema';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
-import { CreateTaskDto } from '../dto/create-project.dto';
+import { CreateTaskDto, UpdateSubTaskDto } from '../dto/create-project.dto';
 import { UpdateTaskDto } from '../dto/update-project.dto';
+import { PaginationDto } from 'src/core/common/pagination/pagination';
 
 @Injectable()
 export class TaskService {
@@ -24,29 +25,36 @@ export class TaskService {
     files?: Array<Express.Multer.File>,
   ): Promise<Task> {
     try {
-      const { content, tasks, ...restOfPayload } = createTaskDto;
+      const { content, tasks, section, project, assignedTo, ...restOfPayload } =
+        createTaskDto;
 
       let taskImage;
       if (files) {
         taskImage = await this.uploadImages(files);
       }
 
-      let subTaskIds = [];
+      let subTaskIds: mongoose.Types.ObjectId[] = [];
 
-      if (tasks && tasks.length > 0) {
-        const subTasks = await Promise.all(
-          tasks.map(async (taskTitle) => {
-            const subTask = this.subTaskModel.create({ subTitle: taskTitle });
-            subTaskIds.push((await subTask)._id);
-          }),
+      if (tasks?.length) {
+        const createdSubTasks = await this.subTaskModel.insertMany(
+          tasks.map((title) => ({ subTitle: title })),
+        );
+        subTaskIds = createdSubTasks.map(
+          (subTask) => new mongoose.Types.ObjectId(subTask._id),
         );
       }
 
-      // Step 2: Create Task and link SubTasks if any
+      const assignedUserIds = assignedTo.map(
+        (id) => new mongoose.Types.ObjectId(id),
+      );
+
       const task = await this.taskModel.create({
         ...restOfPayload,
+        project: new mongoose.Types.ObjectId(project),
+        section: new mongoose.Types.ObjectId(section),
+        assignedTo: assignedUserIds,
         description: { content, image: taskImage ?? [] },
-        subTasks: subTaskIds, // Link subtasks to the task
+        subTasks: subTaskIds,
       });
 
       return task;
@@ -58,19 +66,135 @@ export class TaskService {
     }
   }
 
-  async fetchAll(): Promise<Task[]> {
-    return this.taskModel.find().populate('project section assignedTo').exec();
+  async updateSubTask(updateSubTaskDto: UpdateSubTaskDto): Promise<SubTask> {
+    try {
+      const task = await this.taskModel.findById(updateSubTaskDto.taskId);
+
+      if (!task) {
+        throw new NotFoundException('Task not found');
+      }
+
+      if (!task.subTasks || task.subTasks.length === 0) {
+        throw new BadRequestException('Task has no subtasks assigned');
+      }
+
+      const subTaskIds = task.subTasks.map((id) => id.toString());
+
+      const isSubTaskLinked = subTaskIds.includes(
+        updateSubTaskDto.subTaskId.toString(),
+      );
+
+      if (!isSubTaskLinked) {
+        throw new BadRequestException(
+          'Subtask is not associated with the given task',
+        );
+      }
+
+      const { taskId, subTaskId, ...restOfPayload } = updateSubTaskDto;
+
+      const subTask = await this.subTaskModel.findByIdAndUpdate(
+        subTaskId,
+        { ...restOfPayload },
+        { new: true },
+      );
+
+      if (!subTask) {
+        throw new NotFoundException('Subtask not found');
+      }
+
+      return subTask;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async fetchAll(query: PaginationDto, sectionId: string) {
+    try {
+      const { search, page = 1, limit = 10 } = query;
+      const skip = (page - 1) * limit;
+
+      let filter: any = { section: new mongoose.Types.ObjectId(sectionId) };
+
+      if (search) {
+        filter.title = { $regex: search, $options: 'i' };
+      }
+
+      const data = await this.taskModel
+        .find(filter)
+        .populate({
+          path: 'section',
+          model: 'Section',
+        })
+        .populate({
+          path: 'subTasks',
+          model: 'SubTask',
+          select: 'subTitle status profileImage email',
+        })
+        .populate({
+          path: 'assignedTo',
+          model: 'User',
+          select: 'firstName lastName',
+        })
+        .populate({
+          path: 'project',
+          model: 'Project',
+        })
+        .skip(skip)
+        .limit(limit);
+
+      // Use countDocuments on the task model itself instead of the subTask model
+      const total = await this.taskModel.countDocuments(filter);
+
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        data,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
   }
 
   async fetchOne(taskId: string): Promise<Task> {
-    const task = await this.taskModel
-      .findById(taskId)
-      .populate('project section assignedTo')
-      .exec();
-    if (!task) {
-      throw new NotFoundException('Task not found');
+    try {
+      const task = await this.taskModel
+        .findById(taskId)
+        .populate({
+          path: 'section',
+          model: 'Section',
+        })
+        .populate({
+          path: 'subTasks',
+          model: 'SubTask',
+          select: 'subTitle status',
+        })
+        .populate({
+          path: 'assignedTo',
+          model: 'User',
+        })
+        .populate({
+          path: 'project',
+          model: 'Project',
+        });
+
+      if (!task) {
+        throw new NotFoundException('Task not found');
+      }
+      return task;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
     }
-    return task;
   }
 
   async update(
@@ -111,11 +235,33 @@ export class TaskService {
   }
 
   async delete(taskId: string): Promise<{ message: string }> {
-    const task = await this.taskModel.findByIdAndDelete(taskId);
-    if (!task) {
-      throw new NotFoundException('Task not found');
+    try {
+      const task = await this.taskModel.findByIdAndDelete(taskId);
+      if (!task) {
+        throw new NotFoundException('Task not found');
+      }
+      return { message: 'Task successfully deleted' };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
     }
-    return { message: 'Task successfully deleted' };
+  }
+
+  async deleteSubTask(subTaskId: string): Promise<{ message: string }> {
+    try {
+      const subTask = await this.subTaskModel.findByIdAndDelete(subTaskId);
+      if (!subTask) {
+        throw new NotFoundException('Subtask not found');
+      }
+      return { message: 'Subtask successfully deleted' };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
   }
 
   private async uploadImages(files: Array<Express.Multer.File> | undefined) {

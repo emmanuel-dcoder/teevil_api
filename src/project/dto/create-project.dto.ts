@@ -10,6 +10,7 @@ import {
   IsNotEmpty,
   ValidateNested,
   IsEnum,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { projectType } from '../enum/project.enum';
@@ -141,4 +142,38 @@ export class CreateTaskDto {
   @IsArray()
   @IsString({ each: true })
   tasks?: string[];
+}
+
+export class UpdateSubTaskDto {
+  @ApiProperty({
+    type: String,
+    description: 'subTitle of subtask',
+    example: 'Task 1',
+  })
+  @IsOptional()
+  @IsString()
+  subTitle: string;
+
+  @ApiProperty({ type: Boolean, description: 'false or true', example: true })
+  @IsOptional()
+  @IsBoolean()
+  status: boolean;
+
+  @ApiProperty({
+    example: ['613b6c3a5b41a2f123456789'],
+    description: 'Id of task',
+    type: String,
+  })
+  @IsString()
+  @IsMongoId()
+  taskId: string;
+
+  @ApiProperty({
+    example: ['613b6c3a5b41a2f123456789'],
+    description: 'Id of sub task',
+    type: String,
+  })
+  @IsString()
+  @IsMongoId()
+  subTaskId: string;
 }

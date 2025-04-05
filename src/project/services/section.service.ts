@@ -78,9 +78,9 @@ export class SectionService {
 
       const sections = await this.sectionModel
         .find(filter)
-        .populate('usersAdded')
         .populate({
           path: 'usersAdded',
+          model: 'User',
           populate: {
             path: 'firstName lastName profileImage',
           },
@@ -111,11 +111,12 @@ export class SectionService {
         .findById(id)
         .populate({
           path: 'usersAdded',
+          model: 'User',
           populate: {
             path: 'firstName lastName profileImage',
           },
         })
-        .populate('project');
+        .populate({ path: 'project', model: 'Project' });
       if (!section) throw new NotFoundException('Section not found');
       return section;
     } catch (error) {

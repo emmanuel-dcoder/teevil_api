@@ -130,7 +130,7 @@ export class ProjectService {
 
       const projects = await this.projectModel
         .find(filter)
-        .populate('sections')
+        .populate({ path: 'sections', model: 'Section' })
         .skip(skip)
         .limit(limit);
 
@@ -155,6 +155,7 @@ export class ProjectService {
     try {
       const project = await this.projectModel.findById(id).populate({
         path: 'sections',
+        model: 'Section',
         populate: {
           path: 'tasks',
         },

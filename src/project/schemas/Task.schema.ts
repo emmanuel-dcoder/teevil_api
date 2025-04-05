@@ -55,11 +55,11 @@ export class Task {
   @Prop({ type: mongoose.Types.ObjectId, ref: 'Project', required: true })
   project: mongoose.Types.ObjectId;
 
-  // @Prop({
-  //   type: [{ type: mongoose.Types.ObjectId, ref: 'SubTask' }],
-  //   required: false,
-  // })
-  // subTasks: mongoose.Types.ObjectId[];
+  @Prop({
+    type: [{ type: mongoose.Types.ObjectId, ref: 'SubTask' }],
+    required: false,
+  })
+  subTasks: mongoose.Types.ObjectId[];
 
   @Prop({ required: true })
   dueDate: Date;
