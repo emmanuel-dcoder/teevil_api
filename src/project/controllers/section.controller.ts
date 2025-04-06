@@ -13,6 +13,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiQuery,
@@ -26,6 +27,7 @@ import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { SectionService } from '../services/section.service';
 
 @ApiTags('Section')
+@ApiBearerAuth()
 @Controller('api/v1/section')
 export class SectionController {
   constructor(private readonly sectionService: SectionService) {}

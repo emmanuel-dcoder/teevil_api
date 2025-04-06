@@ -21,6 +21,7 @@ import {
   ApiConsumes,
   ApiBody,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { TaskService } from '../services/task.service';
 import { Task } from '../schemas/task.schema';
@@ -32,6 +33,7 @@ import { UpdateTaskDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 
 @ApiTags('Tasks')
+@ApiBearerAuth()
 @Controller('api/v1/tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
@@ -147,6 +149,7 @@ export class TaskController {
     description: 'Filter tasks by status',
   })
   async fetchAll(
+    @Query()
     query: PaginationDto,
     @Query('sectionId') sectionId: string,
     @Query('status') status: string,

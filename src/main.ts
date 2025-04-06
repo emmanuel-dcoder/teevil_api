@@ -16,17 +16,8 @@ async function bootstrap() {
     .setDescription(
       'Online platform that connects freelancers and clients, enabling collaboration, project management',
     )
-    .addApiKey({ type: 'apiKey', name: 'jwt', in: 'header' }, 'jwt')
     .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'apiKey',
-        name: 'jwt',
-        in: 'header',
-        description: 'Enter JWT token in the header',
-      },
-      'jwt',
-    )
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

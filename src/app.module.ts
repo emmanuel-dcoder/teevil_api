@@ -6,6 +6,7 @@ import { config } from './config/env.config';
 import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
 import { ProjectModule } from './project/project.module';
+import { JobModule } from './job/project.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ProjectModule } from './project/project.module';
     AdminModule,
     UserModule,
     ProjectModule,
+    JobModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -13,6 +13,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiQuery,
@@ -26,6 +27,7 @@ import { UpdateProjectDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 
 @ApiTags('Project')
+@ApiBearerAuth()
 @Controller('api/v1/project')
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
