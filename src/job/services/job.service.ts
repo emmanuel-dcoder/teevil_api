@@ -1,12 +1,16 @@
 import {
   BadRequestException,
   HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { PaginationDto } from 'src/core/common/pagination/pagination';
+import {
+  JobPaginationDto,
+  PaginationDto,
+} from 'src/core/common/pagination/pagination';
 import { MailService } from 'src/core/mail/email';
 import { Job } from '../schemas/job.schema';
 import { CreateJobDto } from '../dto/create-job.dto';
@@ -53,14 +57,52 @@ export class JobService {
     }
   }
 
-  async findAll(query: PaginationDto) {
+  async findAll(query: JobPaginationDto) {
     try {
-      const { search, page = 1, limit = 10 } = query;
+      const {
+        search,
+        page = 1,
+        limit = 10,
+        jobType,
+        priceModel,
+        budgetRange,
+      } = query;
       const skip = (page - 1) * limit;
 
       let filter: any = {};
+
       if (search) {
         filter.title = { $regex: search, $options: 'i' };
+      }
+
+      if (jobType && jobType !== 'all-types') {
+        filter.jobType = jobType;
+      }
+
+      if (priceModel) {
+        filter.priceModel = priceModel;
+      }
+
+      if (budgetRange) {
+        switch (budgetRange) {
+          case '10-50':
+            filter.budget = { $gte: 10, $lte: 50 };
+            break;
+          case '51-100':
+            filter.budget = { $gte: 51, $lte: 100 };
+            break;
+          case '101-500':
+            filter.budget = { $gte: 101, $lte: 500 };
+            break;
+          case '501-1000':
+            filter.budget = { $gte: 501, $lte: 1000 };
+            break;
+          case 'above1000':
+            filter.budget = { $gte: 1001 };
+            break;
+          default:
+            break;
+        }
       }
 
       const jobs = await this.jobModel.find(filter).skip(skip).limit(limit);
@@ -76,8 +118,10 @@ export class JobService {
       };
     } catch (error) {
       throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
+        error?.response?.message ??
+          error?.message ??
+          'Unexpected error occurred',
+        error?.status ?? error?.statusCode ?? HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

@@ -21,7 +21,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { successResponse } from 'src/config/response';
-import { PaginationDto } from 'src/core/common/pagination/pagination';
+import {
+  JobPaginationDto,
+  PaginationDto,
+} from 'src/core/common/pagination/pagination';
 import { JobService } from '../services/job.service';
 import { CreateJobDto } from '../dto/create-job.dto';
 import { UpdateJobDto } from '../dto/update-job.dto';
@@ -60,7 +63,9 @@ export class JobController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all jobs with search and pagination' })
+  @ApiOperation({
+    summary: 'Get all jobs with search, pagination, and filters',
+  })
   @ApiResponse({ status: 200, description: 'Jobs retrieved successfully' })
   @ApiQuery({
     name: 'page',
@@ -83,14 +88,50 @@ export class JobController {
     example: 'job name',
     description: 'Search query for job title',
   })
+  @ApiQuery({
+    name: 'jobType',
+    required: false,
+    type: String,
+    enum: ['full-time', 'part-time', 'contract', 'all-types'],
+    description: 'Filter by job type',
+  })
+  @ApiQuery({
+    name: 'priceModel',
+    required: false,
+    type: String,
+    enum: ['hourly', 'daily', 'monthly', 'fixed'],
+    description: 'Filter by price model',
+  })
+  @ApiQuery({
+    name: 'budgetRange',
+    required: false,
+    type: String,
+    enum: ['10-50', '51-100', '101-500', '501-1000', 'above1000'],
+    description: 'Filter by budget range',
+  })
   @ApiResponse({ status: 200, description: 'Job list fetched' })
   @ApiResponse({ status: 400, description: 'Error fetching job list' })
-  async findAll(@Query() query: PaginationDto, @Req() req: any) {
+  async findAll(@Query() query: JobPaginationDto, @Req() req: any) {
     try {
       const userId = req.user?._id;
       if (!userId) throw new UnauthorizedException('User not authenticated');
-      const { page, limit, search } = query;
-      const data = await this.jobService.findAll({ page, limit, search });
+
+      const {
+        page = 1,
+        limit = 10,
+        search,
+        jobType,
+        priceModel,
+        budgetRange,
+      } = query;
+      const data = await this.jobService.findAll({
+        page,
+        limit,
+        search,
+        jobType,
+        priceModel,
+        budgetRange,
+      });
 
       return successResponse({
         message: 'Job list fetched',
@@ -99,7 +140,9 @@ export class JobController {
         data,
       });
     } catch (error) {
-      throw new UnauthorizedException(error.message);
+      throw new UnauthorizedException(
+        error.message ?? 'Unable to fetch job list',
+      );
     }
   }
 
