@@ -21,10 +21,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { successResponse } from 'src/config/response';
-import {
-  JobPaginationDto,
-  PaginationDto,
-} from 'src/core/common/pagination/pagination';
+import { JobPaginationDto } from 'src/core/common/pagination/pagination';
 import { JobService } from '../services/job.service';
 import { CreateJobDto } from '../dto/create-job.dto';
 import { UpdateJobDto } from '../dto/update-job.dto';
@@ -45,21 +42,17 @@ export class JobController {
     const userId = req.user?._id;
     if (!userId) throw new UnauthorizedException('User not authenticated');
 
-    try {
-      const data = await this.jobService.createJob({
-        ...createJobDto,
-        createdBy: userId,
-      });
+    const data = await this.jobService.createJob({
+      ...createJobDto,
+      createdBy: userId,
+    });
 
-      return successResponse({
-        message: 'Job created successfully',
-        code: HttpStatus.CREATED,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    return successResponse({
+      message: 'Job created successfully',
+      code: HttpStatus.CREATED,
+      status: 'success',
+      data,
+    });
   }
 
   @Get()
@@ -112,38 +105,32 @@ export class JobController {
   @ApiResponse({ status: 200, description: 'Job list fetched' })
   @ApiResponse({ status: 400, description: 'Error fetching job list' })
   async findAll(@Query() query: JobPaginationDto, @Req() req: any) {
-    try {
-      const userId = req.user?._id;
-      if (!userId) throw new UnauthorizedException('User not authenticated');
+    const userId = req.user?._id;
+    if (!userId) throw new UnauthorizedException('User not authenticated');
 
-      const {
-        page = 1,
-        limit = 10,
-        search,
-        jobType,
-        priceModel,
-        budgetRange,
-      } = query;
-      const data = await this.jobService.findAll({
-        page,
-        limit,
-        search,
-        jobType,
-        priceModel,
-        budgetRange,
-      });
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      jobType,
+      priceModel,
+      budgetRange,
+    } = query;
+    const data = await this.jobService.findAll({
+      page,
+      limit,
+      search,
+      jobType,
+      priceModel,
+      budgetRange,
+    });
 
-      return successResponse({
-        message: 'Job list fetched',
-        code: HttpStatus.OK,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(
-        error.message ?? 'Unable to fetch job list',
-      );
-    }
+    return successResponse({
+      message: 'Job list fetched',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 
   @Get(':id')
@@ -151,17 +138,13 @@ export class JobController {
   @ApiResponse({ status: 200, description: 'Job retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Job not found' })
   async findOne(@Param('id') id: string) {
-    try {
-      const data = await this.jobService.findOne(id);
-      return successResponse({
-        message: 'Job retrieved successfully',
-        code: HttpStatus.OK,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    const data = await this.jobService.findOne(id);
+    return successResponse({
+      message: 'Job retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 
   @Put(':id')
@@ -169,17 +152,13 @@ export class JobController {
   @ApiResponse({ status: 200, description: 'Job updated successfully' })
   @ApiResponse({ status: 404, description: 'Job not found' })
   async update(@Param('id') id: string, @Body() updateData: UpdateJobDto) {
-    try {
-      const data = await this.jobService.update(id, updateData);
-      return successResponse({
-        message: 'Job updated successfully',
-        code: HttpStatus.OK,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    const data = await this.jobService.update(id, updateData);
+    return successResponse({
+      message: 'Job updated successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 
   @Delete(':id')
@@ -187,16 +166,12 @@ export class JobController {
   @ApiResponse({ status: 200, description: 'Job deleted successfully' })
   @ApiResponse({ status: 404, description: 'Job not found' })
   async delete(@Param('id') id: string) {
-    try {
-      const data = await this.jobService.delete(id);
-      return successResponse({
-        message: 'Job deleted successfully',
-        code: HttpStatus.OK,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    const data = await this.jobService.delete(id);
+    return successResponse({
+      message: 'Job deleted successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 }

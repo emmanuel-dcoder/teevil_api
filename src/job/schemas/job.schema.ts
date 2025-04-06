@@ -42,6 +42,12 @@ export class Job {
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User', required: true })
   createdBy: mongoose.Types.ObjectId;
+
+  @Prop({
+    type: [{ type: mongoose.Types.ObjectId, ref: 'Proposal' }],
+    required: true,
+  })
+  proposal: mongoose.Types.ObjectId[];
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);

@@ -42,21 +42,17 @@ export class ProjectController {
     const userId = req.user?._id;
     if (!userId) throw new UnauthorizedException('User not authenticated');
 
-    try {
-      const data = await this.projectService.createProject({
-        ...createProjectDto,
-        createdBy: userId,
-      });
+    const data = await this.projectService.createProject({
+      ...createProjectDto,
+      createdBy: userId,
+    });
 
-      return successResponse({
-        message: 'Project created successfully',
-        code: HttpStatus.CREATED,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    return successResponse({
+      message: 'Project created successfully',
+      code: HttpStatus.CREATED,
+      status: 'success',
+      data,
+    });
   }
 
   //add invite or collaborator
@@ -124,24 +120,20 @@ export class ProjectController {
     description: 'Search query for project title',
   })
   async findAll(@Query() query: PaginationDto, @Req() req: any) {
-    try {
-      const userId = req.user?._id;
-      if (!userId) throw new UnauthorizedException('User not authenticated');
-      const { page, limit, search } = query;
-      const data = await this.projectService.findAll(
-        { page, limit, search },
-        userId,
-      );
+    const userId = req.user?._id;
+    if (!userId) throw new UnauthorizedException('User not authenticated');
+    const { page, limit, search } = query;
+    const data = await this.projectService.findAll(
+      { page, limit, search },
+      userId,
+    );
 
-      return successResponse({
-        message: 'Projects retrieved successfully',
-        code: HttpStatus.OK,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    return successResponse({
+      message: 'Projects retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 
   @Get(':id')
@@ -149,17 +141,13 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'Project retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async findOne(@Param('id') id: string) {
-    try {
-      const data = await this.projectService.findOne(id);
-      return successResponse({
-        message: 'Project retrieved successfully',
-        code: HttpStatus.OK,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    const data = await this.projectService.findOne(id);
+    return successResponse({
+      message: 'Project retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 
   @Put(':id')
@@ -167,17 +155,13 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'Project updated successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async update(@Param('id') id: string, @Body() updateData: UpdateProjectDto) {
-    try {
-      const data = await this.projectService.update(id, updateData);
-      return successResponse({
-        message: 'Project updated successfully',
-        code: HttpStatus.OK,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    const data = await this.projectService.update(id, updateData);
+    return successResponse({
+      message: 'Project updated successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 
   @Delete(':id')
@@ -185,16 +169,12 @@ export class ProjectController {
   @ApiResponse({ status: 200, description: 'Project deleted successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async delete(@Param('id') id: string) {
-    try {
-      const data = await this.projectService.delete(id);
-      return successResponse({
-        message: 'Project deleted successfully',
-        code: HttpStatus.OK,
-        status: 'success',
-        data,
-      });
-    } catch (error) {
-      throw new UnauthorizedException(error.message);
-    }
+    const data = await this.projectService.delete(id);
+    return successResponse({
+      message: 'Project deleted successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
   }
 }
