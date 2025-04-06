@@ -47,7 +47,7 @@ export class Job {
     type: [{ type: mongoose.Types.ObjectId, ref: 'Proposal' }],
     required: false,
   })
-  proposal: mongoose.Types.ObjectId[];
+  proposals: mongoose.Types.ObjectId[];
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);
