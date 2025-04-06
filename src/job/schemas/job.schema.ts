@@ -45,7 +45,7 @@ export class Job {
 
   @Prop({
     type: [{ type: mongoose.Types.ObjectId, ref: 'Proposal' }],
-    required: true,
+    required: false,
   })
   proposal: mongoose.Types.ObjectId[];
 }
