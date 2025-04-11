@@ -28,10 +28,10 @@ export class User {
   isVerified: boolean;
 
   @Prop({ type: String, enum: accountType, default: null })
-  accountType: 'freelancer' | 'client';
+  accountType: accountType;
 
   @Prop({ type: String, enum: ClientType, default: null })
-  clientType: 'single' | 'agency';
+  clientType: ClientType;
 
   @Prop({ required: false, default: null })
   verificationOtp: string;
