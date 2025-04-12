@@ -23,6 +23,7 @@ import {
   LoginDto,
   QuestionDto,
   QuestionTypeListDto,
+  UpdateVisibleDto,
   VerifyOtpDto,
 } from './dto/create-user.dto';
 import {
@@ -274,6 +275,30 @@ export class UserController {
     const data = await this.userService.changePassword(userId, dto);
     return successResponse({
       message: 'Password changed successfully.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Put('visibility')
+  @ApiOperation({
+    summary: 'Update User Visibility',
+    description:
+      'Allows an authenticated user to update their visibility status.',
+  })
+  @ApiBody({ type: UpdateVisibleDto })
+  @ApiResponse({ status: 200, description: 'Visibility updated successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid user or input.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async updateVisible(@Req() req: any, @Body() dto: UpdateVisibleDto) {
+    const userId = req.user._id;
+    if (!userId) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    const data = await this.userService.updateVisible(userId, dto);
+    return successResponse({
+      message: 'Visibility updated successfully.',
       code: HttpStatus.OK,
       status: 'success',
       data,

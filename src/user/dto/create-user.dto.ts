@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 import { accountType, ClientType, QuestionType } from '../enum/user.enum';
 
 export class CreateUserDto {
@@ -179,4 +179,10 @@ export class DeleteAccountDto {
   @ApiProperty()
   @IsString()
   password: string;
+}
+
+export class UpdateVisibleDto {
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  visible: boolean;
 }

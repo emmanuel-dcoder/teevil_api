@@ -13,6 +13,7 @@ import {
   ForgotPasswordDto,
   LoginDto,
   QuestionTypeListDto,
+  UpdateVisibleDto,
   VerifyOtpDto,
 } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -382,6 +383,35 @@ export class UserService {
       throw new HttpException(
         error?.response?.message ?? error?.message,
         error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async updateVisible(userId: string, dto: UpdateVisibleDto) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new BadRequestException('Invalid user ID format');
+      }
+
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
+
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      user.visible = dto.visible;
+      await user.save();
+
+      return {
+        message: 'Visibility updated successfully',
+        visible: user.visible,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
       );
     }
   }

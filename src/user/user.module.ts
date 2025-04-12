@@ -37,6 +37,7 @@ export class UserModule implements NestModule {
       },
       { path: 'api/v1/user/change-password', method: RequestMethod.POST },
       { path: 'api/v1/user/delete-account', method: RequestMethod.POST },
+      { path: 'api/v1/user/visibility', method: RequestMethod.PUT },
     );
   }
 }
