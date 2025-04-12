@@ -9,18 +9,13 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { SendMessageDto } from './dto/create-chat.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Message } from './schemas/message.schema';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private connectedUsers = new Map<string, string>();
 
-  constructor(
-    @InjectModel(Message.name) private readonly messageModel: Message,
-    private readonly chatService: ChatService,
-  ) {}
+  constructor(private readonly chatService: ChatService) {}
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
@@ -68,5 +63,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
 
     if (recipient) return await this.server.emit(`${recipient}`, message);
+  }
+
+  @SubscribeMessage('getMessge')
+  async hadnleGetMessage(client: Socket, chattId: string) {
+    const chat = await this.chatService.getMessages(chattId);
+    if (chattId) return await client.emit(`messageHistory`, chat);
+  }
+
+  @SubscribeMessage('chatsHistory')
+  async handleChatHistory(client: Socket, participantId: string) {
+    const chats = await this.chatService.findAllChat(participantId);
+    if (!chats) return await client.emit('chat-history', []);
+    return await client.emit('chat-history', chats);
   }
 }

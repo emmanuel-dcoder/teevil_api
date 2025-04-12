@@ -11,10 +11,48 @@ export class ChatService {
     @InjectModel(Message.name) private messageModel: Model<Message>,
   ) {}
 
-  async getMessages(chatId: string) {
-    return this.messageModel.find({ chatId }).sort({ createdAt: 1 });
+  async sendMessage(data: {
+    sender: string;
+    recipient: string;
+    content: string;
+    chatId: any;
+  }) {
+    const message = await this.messageModel.create({
+      ...data,
+      sender: new mongoose.Types.ObjectId(data.sender),
+      recipient: new mongoose.Types.ObjectId(data.recipient),
+      content: data.content,
+      chat: new mongoose.Types.ObjectId(data.chatId),
+    });
+
+    return message;
   }
 
+  async getMessages(chatId: string) {
+    return await this.messageModel
+      .find({ chatId })
+      .populate({
+        path: 'sender',
+        model: 'User',
+        select: 'firstName lastName email profileImage',
+      })
+      .populate({
+        path: 'recipient',
+        model: 'User',
+        select: 'firstName lastName email profileImage',
+      })
+      .sort({ createdAt: -1 });
+  }
+
+  //create
+  async createChat(sender: string, recipient: string): Promise<Chat> {
+    const chat = await this.chatModel.create({
+      sender: new mongoose.Types.ObjectId(sender),
+      recipient: new mongoose.Types.ObjectId(recipient),
+    });
+
+    if (chat) return chat;
+  }
   async findChat(senderId: string, recipientId: string) {
     const existingChat = await this.chatModel.findOne(
       {
@@ -40,30 +78,30 @@ export class ChatService {
       };
   }
 
-  //create
-  async createChat(sender: string, recipient: string): Promise<Chat> {
-    const chat = await this.chatModel.create({
-      sender: new mongoose.Types.ObjectId(sender),
-      recipient: new mongoose.Types.ObjectId(recipient),
-    });
+  async findAllChat(participantId: string) {
+    const chat = await this.chatModel
+      .find(
+        {
+          $or: [
+            {
+              sender: new mongoose.Types.ObjectId(participantId),
+            },
+          ],
+        },
+        {},
+      )
+      .populate({
+        path: 'sender',
+        model: 'User',
+        select: 'firstName lastName email profileImage',
+      })
+      .populate({
+        path: 'recipient',
+        model: 'User',
+        select: 'firstName lastName email profileImage',
+      })
+      .sort({ createdAt: -1 });
 
     if (chat) return chat;
-  }
-
-  async sendMessage(data: {
-    sender: string;
-    recipient: string;
-    content: string;
-    chatId: any;
-  }) {
-    const message = await this.messageModel.create({
-      ...data,
-      sender: new mongoose.Types.ObjectId(data.sender),
-      recipient: new mongoose.Types.ObjectId(data.recipient),
-      content: data.content,
-      chat: new mongoose.Types.ObjectId(data.chatId),
-    });
-
-    return message;
   }
 }
