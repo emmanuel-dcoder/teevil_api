@@ -30,9 +30,13 @@ import { VerifyTokenMiddleware } from 'src/core/common/middlewares';
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(VerifyTokenMiddleware).forRoutes({
-      path: 'api/v1/user/logged-in',
-      method: RequestMethod.GET,
-    });
+    consumer.apply(VerifyTokenMiddleware).forRoutes(
+      {
+        path: 'api/v1/user/logged-in',
+        method: RequestMethod.GET,
+      },
+      { path: 'api/v1/user/change-password', method: RequestMethod.POST },
+      { path: 'api/v1/user/delete-account', method: RequestMethod.POST },
+    );
   }
 }

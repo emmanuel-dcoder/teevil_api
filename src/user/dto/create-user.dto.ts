@@ -164,3 +164,19 @@ export class QuestionTypeListDto {
   @IsString()
   typeOfProject: string;
 }
+
+export class ChangePasswordDto {
+  @ApiProperty()
+  @IsString()
+  oldPassword: string;
+
+  @ApiProperty()
+  @IsString()
+  newPassword: string;
+}
+
+export class DeleteAccountDto {
+  @ApiProperty()
+  @IsString()
+  password: string;
+}

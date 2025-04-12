@@ -6,8 +6,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  ChangePasswordDto,
   ClientTypeDto,
   CreateUserDto,
+  DeleteAccountDto,
   ForgotPasswordDto,
   LoginDto,
   QuestionTypeListDto,
@@ -263,6 +265,39 @@ export class UserService {
     }
   }
 
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new BadRequestException('Invalid user ID format');
+      }
+
+      const user = await this.userModel.findOne(
+        {
+          _id: new mongoose.Types.ObjectId(userId),
+        },
+        { password: 1 },
+      );
+
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      if (!(await comparePassword(dto.oldPassword, user.password))) {
+        throw new BadRequestException('Old and new password does not match');
+      }
+
+      user.password = await hashPassword(dto.newPassword);
+      await user.save();
+
+      return { message: 'Password changed successfully' };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
   /**
    * questions services
    */
@@ -347,6 +382,40 @@ export class UserService {
       throw new HttpException(
         error?.response?.message ?? error?.message,
         error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async deleteAccount(userId: string, dto: DeleteAccountDto) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new BadRequestException('Invalid user ID format');
+      }
+
+      const user = await this.userModel.findOne(
+        {
+          _id: new mongoose.Types.ObjectId(userId),
+        },
+        { password: 1 },
+      );
+
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      if (!(await comparePassword(dto.password, user.password))) {
+        throw new BadRequestException('Incorrect password');
+      }
+
+      await this.userModel.deleteOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
+
+      return { message: 'Account deleted successfully' };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
       );
     }
   }

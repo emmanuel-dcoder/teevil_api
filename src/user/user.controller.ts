@@ -15,8 +15,10 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
+  ChangePasswordDto,
   ClientTypeDto,
   CreateUserDto,
+  DeleteAccountDto,
   ForgotPasswordDto,
   LoginDto,
   QuestionDto,
@@ -246,6 +248,58 @@ export class UserController {
     const data = await this.userService.forgotPassword(dto);
     return successResponse({
       message: 'Password reset OTP sent.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Post('change-password')
+  @ApiOperation({
+    summary: 'Change Password',
+    description: 'Allows an authenticated user to change their password.',
+  })
+  @ApiBody({ type: ChangePasswordDto })
+  @ApiResponse({ status: 200, description: 'Password changed successfully.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid old password or user not found.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
+    const userId = req.user._id;
+    if (!userId) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    const data = await this.userService.changePassword(userId, dto);
+    return successResponse({
+      message: 'Password changed successfully.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Post('delete-account')
+  @ApiOperation({
+    summary: 'Delete Account',
+    description: 'Allows an authenticated user to delete their account.',
+  })
+  @ApiBody({ type: DeleteAccountDto })
+  @ApiResponse({ status: 200, description: 'Account deleted successfully.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid password or user not found.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async deleteAccount(@Req() req: any, @Body() dto: DeleteAccountDto) {
+    const userId = req.user._id;
+    if (!userId) {
+      throw new UnauthorizedException('User not authenticated');
+    }
+    const data = await this.userService.deleteAccount(userId, dto);
+    return successResponse({
+      message: 'Account deleted successfully.',
       code: HttpStatus.OK,
       status: 'success',
       data,
