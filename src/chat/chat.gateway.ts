@@ -62,7 +62,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       chatId,
     });
 
-    if (recipient) return await this.server.emit(`${recipient}`, message);
+    if (recipient) return await await this.server.emit(`${recipient}`, message);
   }
 
   @SubscribeMessage('getMessge')
