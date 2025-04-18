@@ -8,6 +8,7 @@ import { AdminModule } from './admin/admin.module';
 import { ProjectModule } from './project/project.module';
 import { JobModule } from './job/job.module';
 import { ProposalModule } from './proposal/propsal.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ProposalModule } from './proposal/propsal.module';
     ProjectModule,
     JobModule,
     ProposalModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
