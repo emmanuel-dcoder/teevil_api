@@ -80,7 +80,18 @@ export class NotificationController {
     example: 'notification name',
     description: 'Search query for notification',
   })
-  async findAll(@Query() query: PaginationDto, @Req() req: any) {
+  @ApiQuery({
+    name: 'notificationType',
+    required: false,
+    type: String,
+    example: 'job',
+    enum: ['job', 'project'],
+    description: 'Filter by notification type',
+  })
+  async findAll(
+    @Query() query: PaginationDto & { notificationType: string },
+    @Req() req: any,
+  ) {
     const userId = req.user?._id;
     if (!userId) throw new UnauthorizedException('User not authenticated');
     const data = await this.notificationService.findAll(query, userId);

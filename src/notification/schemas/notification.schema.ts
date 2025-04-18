@@ -11,6 +11,9 @@ export class Notification {
   @Prop({ required: true })
   content: string;
 
+  @Prop({ required: true, enum: ['job', 'project'] })
+  notificationtType: string;
+
   @Prop({ type: Boolean, default: false })
   isRead: boolean;
 

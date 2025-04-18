@@ -27,7 +27,10 @@ export class NotificationService {
     }
   }
 
-  async findAll(query: PaginationDto, userId: string) {
+  async findAll(
+    query: PaginationDto & { notificationType: string },
+    userId: string,
+  ) {
     try {
       const { search, page = 1, limit = 10 } = query;
       const skip = (page - 1) * limit;
