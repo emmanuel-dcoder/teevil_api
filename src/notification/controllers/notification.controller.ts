@@ -44,7 +44,7 @@ export class NotificationController {
 
     const data = await this.notificationService.create({
       ...payload,
-      userId,
+      user: userId,
     });
     return successResponse({
       message: 'notification created successfully',

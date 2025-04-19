@@ -18,6 +18,12 @@ import {
 import { TaskController } from './controllers/task.controller';
 import { TaskService } from './services/task.service';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
+import { User, UserSchema } from 'src/user/schemas/user.schema';
+import { NotificationService } from 'src/notification/services/notification.service';
+import {
+  Notification,
+  NotificationSchema,
+} from 'src/notification/schemas/notification.schema';
 
 @Module({
   imports: [
@@ -27,6 +33,8 @@ import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
       { name: Invite.name, schema: InviteSchema },
       { name: Task.name, schema: TaskSchema },
       { name: SubTask.name, schema: SubTaskSchema },
+      { name: User.name, schema: UserSchema },
+      { name: Notification.name, schema: NotificationSchema },
     ]),
   ],
   controllers: [ProjectController, SectionController, TaskController],
@@ -36,6 +44,7 @@ import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
     SectionService,
     TaskService,
     CloudinaryService,
+    NotificationService,
   ],
 })
 export class ProjectModule implements NestModule {

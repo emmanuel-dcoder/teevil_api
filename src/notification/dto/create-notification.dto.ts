@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsBoolean } from 'class-validator';
 
 export class CreeateNotificationDto {
@@ -27,7 +27,7 @@ export class CreeateNotificationDto {
   @IsString()
   userType: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: true,
     description: 'boolean to confirm if notification has been read or not',
   })

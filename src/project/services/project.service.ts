@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   HttpException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,6 +14,8 @@ import { UpdateProjectDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { MailService } from 'src/core/mail/email';
 import { Invite } from '../schemas/invite.schema';
+import { User } from 'src/user/schemas/user.schema';
+import { NotificationService } from 'src/notification/services/notification.service';
 
 @Injectable()
 export class ProjectService {
@@ -20,6 +23,8 @@ export class ProjectService {
     @InjectModel(Project.name) private projectModel: Model<Project>,
     @InjectModel(Section.name) private sectionModel: Model<Section>,
     @InjectModel(Invite.name) private inviteModel: Model<Invite>,
+    @InjectModel(User.name) private userModel: Model<User>,
+    private readonly notificationService: NotificationService,
     private readonly mailService: MailService,
   ) {}
 
@@ -57,6 +62,7 @@ export class ProjectService {
       );
 
       const sectionIds = sections.map((sec) => sec._id);
+      project.usersAdded.push(new mongoose.Types.ObjectId(createdBy));
       project.sections = sectionIds;
       await project.save();
 
@@ -83,13 +89,27 @@ export class ProjectService {
       });
       if (!projectExists) throw new NotFoundException('Project not found');
 
-      const invite = await this.inviteModel.create({
-        email,
-        projectId: new mongoose.Types.ObjectId(projectId),
-        sections: sections.map((id) => new mongoose.Types.ObjectId(id)),
-      });
-
+      let invite;
       try {
+        //confirm if freelancer exist
+        const freelancer = await this.userModel.findOne({ email });
+        if (freelancer) {
+          await this.notificationService.create({
+            title: 'Project Invitation',
+            userType: 'user',
+            content: `You have been invited to participate in a project: ${projectExists.title}`,
+            notificationType: 'project',
+            user: `${freelancer._id}`,
+          });
+
+          return;
+        }
+        invite = await this.inviteModel.create({
+          email,
+          projectId: new mongoose.Types.ObjectId(projectId),
+          sections: sections.map((id) => new mongoose.Types.ObjectId(id)),
+        });
+
         await this.mailService.sendMailNotification(
           email,
           'Teevil: Project Invitation',

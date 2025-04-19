@@ -12,10 +12,10 @@ export class NotificationService {
     private notificationModel: Model<Notification>,
   ) {}
 
-  async create(payload: CreeateNotificationDto & { userId: string }) {
+  async create(payload: CreeateNotificationDto & { user: string }) {
     try {
       const notification = await this.notificationModel.create({
-        user: payload.userId,
+        user: payload.user,
         ...payload,
       });
       return notification;
