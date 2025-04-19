@@ -13,7 +13,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { projectType } from '../enum/project.enum';
+import { projectType } from '../enumAndTypes/project.enum';
 
 export class CreateProjectDto {
   @ApiProperty()

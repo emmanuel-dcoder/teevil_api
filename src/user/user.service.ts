@@ -30,17 +30,21 @@ import { MailService } from 'src/core/mail/email';
 import { Question } from './schemas/question.schema';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { QuestionTypeList } from './schemas/question-type.schema';
+import { Invite } from 'src/project/schemas/invite.schema';
+import { NotificationService } from 'src/notification/services/notification.service';
+import { InviteWithProject } from 'src/project/enumAndTypes/project.enum';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-
     @InjectModel(Question.name) private questionModel: Model<Question>,
     @InjectModel(QuestionTypeList.name)
     private questionTypeModel: Model<QuestionTypeList>,
+    @InjectModel(Invite.name) private inviteModel: Model<Invite>,
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailService: MailService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async createQuestion(questionTypeDto: QuestionTypeListDto) {
@@ -89,9 +93,32 @@ export class UserService {
           { name: createUserDto.firstName, otp },
           'welcome',
         );
+
+        const invites = (await this.inviteModel
+          .find({ email })
+          .populate({
+            path: 'projectId',
+            model: 'Project',
+            select: 'title _id',
+          })
+          .lean()) as any as InviteWithProject[];
+
+        if (invites.length > 0) {
+          for (const invite of invites) {
+            await this.notificationService.create({
+              title: 'Project Invitation',
+              content: `You have been invited to join project: ${invite.projectId?.title ?? ''}`,
+              notificationType: 'project',
+              userType: 'user',
+              user: createUser._id.toString(),
+              projectId: `${invite.projectId._id}`,
+            });
+          }
+        }
       } catch (error) {
         console.log('email notification error:', error);
       }
+
       delete createUser.password;
 
       return createUser;

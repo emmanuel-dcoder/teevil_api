@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   HttpException,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -100,6 +99,7 @@ export class ProjectService {
             content: `You have been invited to participate in a project: ${projectExists.title}`,
             notificationType: 'project',
             user: `${freelancer._id}`,
+            projectId: `${projectExists.id}`,
           });
 
           return;

@@ -9,6 +9,12 @@ export class CreeateNotificationDto {
   @IsString()
   title: string;
 
+  @ApiPropertyOptional({
+    example: 'project id',
+  })
+  @IsString()
+  projectId?: string;
+
   @ApiProperty({ description: 'content of the notification' })
   @IsString()
   content: string;
