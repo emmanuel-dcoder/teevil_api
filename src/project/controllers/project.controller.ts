@@ -173,4 +173,21 @@ export class ProjectController {
       data,
     });
   }
+
+  @Post('accept/:projectId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Accept project invite' })
+  @ApiResponse({ status: 200, description: 'Project joined successfully' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
+  async acceptProject(@Param('projectId') projectId: string, @Req() req: any) {
+    const userId = req.user?._id;
+    if (!userId) throw new UnauthorizedException('User not authenticated');
+    const data = await this.projectService.acceptProject(projectId, userId);
+    return successResponse({
+      message: 'Project joined successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
 }

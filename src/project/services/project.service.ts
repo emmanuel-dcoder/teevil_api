@@ -15,6 +15,7 @@ import { MailService } from 'src/core/mail/email';
 import { Invite } from '../schemas/invite.schema';
 import { User } from 'src/user/schemas/user.schema';
 import { NotificationService } from 'src/notification/services/notification.service';
+import { PopulatedProjectDocument } from '../enumAndTypes/project.enum';
 
 @Injectable()
 export class ProjectService {
@@ -221,6 +222,53 @@ export class ProjectService {
       const deletedProject = await this.projectModel.findByIdAndDelete(id);
       if (!deletedProject) throw new NotFoundException('Project not found');
       return { message: 'Project deleted successfully' };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  async acceptProject(projectId: string, userId: string) {
+    try {
+      const user = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+      });
+      const project = (await this.projectModel
+        .findOne({ _id: new mongoose.Types.ObjectId(projectId) })
+        .populate({
+          path: 'createdBy',
+          model: 'User',
+          select: '_id email firstName',
+        })) as any as PopulatedProjectDocument;
+
+      if (!project) throw new NotFoundException('Project not found');
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      const alreadyAdded = project.usersAdded.some((id) =>
+        id.equals(userObjectId),
+      );
+      if (alreadyAdded) {
+        throw new BadRequestException('User already added to the project');
+      }
+      project.usersAdded.push(userObjectId);
+      await project.save();
+      try {
+        await this.mailService.sendMailNotification(
+          project.createdBy?.email,
+          'Teevil Invitation Update',
+          {
+            title: project.title,
+            name: user.firstName,
+            freelancer: project.createdBy.firstName,
+          },
+          'project_update',
+        );
+      } catch (error) {
+        console.log('project inivitation error:', error);
+      }
+
+      return project;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
