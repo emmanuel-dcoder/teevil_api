@@ -114,6 +114,7 @@ export class UserService {
               projectId: `${invite.projectId._id}`,
             });
           }
+          await this.inviteModel.deleteMany({ email });
         }
       } catch (error) {
         console.log('email notification error:', error);

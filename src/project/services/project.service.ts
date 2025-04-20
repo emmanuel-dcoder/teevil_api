@@ -102,6 +102,16 @@ export class ProjectService {
             projectId: `${projectExists.id}`,
           });
 
+          await this.mailService.sendMailNotification(
+            email,
+            'Teevil: Project Invitation',
+            {
+              name: projectExists.title,
+              link: 'https://localhost.com',
+            },
+            'project_invite',
+          );
+
           return;
         }
         invite = await this.inviteModel.create({
@@ -115,8 +125,7 @@ export class ProjectService {
           'Teevil: Project Invitation',
           {
             name: projectExists.title,
-            acceptUrl: `https://google.com`,
-            rejectUrl: `https://google.com`,
+            link: 'https://localhost.com',
           },
           'project_invite',
         );
