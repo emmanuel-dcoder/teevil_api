@@ -9,6 +9,7 @@ import { ProjectModule } from './project/project.module';
 import { JobModule } from './job/job.module';
 import { ProposalModule } from './proposal/propsal.module';
 import { NotificationModule } from './notification/notification.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { NotificationModule } from './notification/notification.module';
     JobModule,
     ProposalModule,
     NotificationModule,
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

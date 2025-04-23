@@ -28,4 +28,7 @@ export const config = {
     port: process.env.MAIL_PORT,
     from: process.env.MAIL_FROM,
   },
+  stripe: {
+    key: process.env.STRIPE_SECRET_KEY,
+  },
 };
