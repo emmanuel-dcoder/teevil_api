@@ -10,6 +10,7 @@ export class StripePaymentIntentService {
     this.stripe = new Stripe(config.stripe.key);
   }
 
+  //creating payment intent
   async createPaymentIntent(amount: number, metadata: Record<string, any>) {
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
