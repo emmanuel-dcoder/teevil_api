@@ -24,8 +24,6 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { TaskService } from '../services/task.service';
-import { Task } from '../schemas/task.schema';
-
 import { successResponse } from 'src/config/response';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateTaskDto, UpdateSubTaskDto } from '../dto/create-project.dto';
