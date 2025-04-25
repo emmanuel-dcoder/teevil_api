@@ -14,7 +14,7 @@ import {
   SubTaskSchema,
   Task,
   TaskSchema,
-} from './schemas/Task.schema';
+} from './schemas/task.schema';
 import { TaskController } from './controllers/task.controller';
 import { TaskService } from './services/task.service';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';

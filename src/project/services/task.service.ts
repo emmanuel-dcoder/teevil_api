@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { SubTask, Task } from '../schemas/task.schema';
 import { CloudinaryService } from 'src/core/cloudinary/cloudinary.service';
 import { CreateTaskDto, UpdateSubTaskDto } from '../dto/create-project.dto';
 import { UpdateTaskDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
+import { SubTask, Task } from '../schemas/task.schema';
 
 @Injectable()
 export class TaskService {

@@ -41,7 +41,6 @@ export class TaskController {
   @ApiResponse({
     status: 201,
     description: 'Task successfully created',
-    type: Task,
   })
   @UseInterceptors(FilesInterceptor('files', 9))
   @ApiConsumes('multipart/form-data')
