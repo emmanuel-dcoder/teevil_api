@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+//configurations for env files
 export const config = {
   port: process.env.port,
   database: {
