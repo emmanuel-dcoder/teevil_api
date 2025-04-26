@@ -10,15 +10,12 @@ export class StripePaymentIntentService {
     this.stripe = new Stripe(config.stripe.key);
   }
 
-  //creating payment intent
-  async createPaymentIntent(amount: number, metadata: Record<string, any>) {
+  async createPaymentIntent(amount: number) {
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // convert to cents
+        amount: Math.round(amount * 100),
         currency: 'usd',
-        metadata,
       });
-
       return paymentIntent;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -35,6 +32,20 @@ export class StripePaymentIntentService {
     } catch (error) {
       throw new InternalServerErrorException(
         'Stripe Payment Intent verification failed',
+      );
+    }
+  }
+
+  constructWebhookEvent(payload: Buffer, signature: string) {
+    try {
+      return this.stripe.webhooks.constructEvent(
+        payload,
+        signature,
+        config.stripe.webhookSecret,
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Invalid Stripe Webhook Signature',
       );
     }
   }

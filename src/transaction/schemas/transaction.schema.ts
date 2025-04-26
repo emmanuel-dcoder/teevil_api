@@ -19,12 +19,15 @@ export class Transaction {
 
   @Prop({
     default: 'pending',
-    enum: ['pending', 'confirm', 'failed', 'in-reveiew'],
+    enum: ['pending', 'confirmed', 'failed', 'in-reveiew'],
   })
   status: 'pending' | 'confirm' | 'failed' | 'in-review';
 
-  @Prop({ required: false })
-  method: string;
+  @Prop({ required: true })
+  channel: string;
+
+  @Prop({ required: true })
+  transactionId: string;
 
   @Prop({ required: false })
   paymentType: string;

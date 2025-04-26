@@ -1,37 +1,36 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsMongoId } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsMongoId, IsNumber } from 'class-validator';
 
-export class CreateProposalDto {
+export class CreateTransactionDto {
   @ApiProperty({
-    example: 'Cover Letter',
-    description: 'cover letter header  or title',
-  })
-  @IsString()
-  title: string;
-
-  @ApiProperty({ description: 'content or details of the cofer letter' })
-  @IsString()
-  body: string;
-
-  @ApiProperty({
-    example: '4 to 6 weeks',
-    description: 'time line for deliver the project',
-  })
-  @IsString()
-  timeLine: string;
-
-  @ApiProperty({
-    example: '20 dollars per hour',
-  })
-  @IsString()
-  bidAmount: string;
-
-  @ApiProperty({
-    example: '613b6c3a5b41a2f123456789',
-    description: 'Job id',
-    type: String,
+    example: '662aa983714edbe3f503616c',
+    description: 'id of the freelancer',
   })
   @IsString()
   @IsMongoId()
-  job: string;
+  freelancer: string;
+
+  @ApiProperty({
+    example: '662aa983714edbe3f503616c',
+    description: 'id of the client',
+  })
+  @IsString()
+  @IsMongoId()
+  client: string;
+
+  @ApiProperty({
+    example: '662aa983714edbe3f503616c',
+    description: 'id of the project',
+  })
+  @IsString()
+  @IsMongoId()
+  project: string;
+
+  @ApiProperty({
+    example: 700,
+    description: 'amount intended to pay',
+    type: Number,
+  })
+  @IsNumber()
+  amount: number;
 }

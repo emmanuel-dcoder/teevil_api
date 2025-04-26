@@ -1,9 +1,11 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { Transaction } from '../schemas/transaction.schema';
 import { StripePaymentIntentService } from 'src/provider/stripe/stripe-payment-intent.service';
+import { CreateTransactionDto } from '../dto/create-transaction.dto';
+import { PaginationDto } from 'src/core/common/pagination/pagination';
+import Stripe from 'stripe';
 
 @Injectable()
 export class TransactionService {
@@ -11,6 +13,84 @@ export class TransactionService {
     @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
     private readonly stripeService: StripePaymentIntentService,
   ) {}
+
+  async initiatePayment(payload: CreateTransactionDto) {
+    try {
+      const { freelancer, client, project, amount } = payload;
+
+      const stripePayment =
+        await this.stripeService.createPaymentIntent(amount);
+
+      const transaction = await this.transactionModel.create({
+        freelancer: new mongoose.Types.ObjectId(freelancer),
+        client: new mongoose.Types.ObjectId(client),
+        project: new mongoose.Types.ObjectId(project),
+        amount,
+        channel: 'stripe',
+        paymentType: 'card',
+        metaData: JSON.stringify(stripePayment),
+        status: 'pending',
+        transactionId: stripePayment.id,
+      });
+
+      return {
+        clientSecret: stripePayment.client_secret,
+        paymentIntentId: stripePayment.id,
+        transaction,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  async verifyPayment(paymentIntentId: string) {
+    try {
+      const payment =
+        await this.stripeService.verifyPaymentIntent(paymentIntentId);
+
+      const updated = await this.transactionModel.findOneAndUpdate(
+        { transactionId: paymentIntentId },
+        {
+          status: payment.status === 'succeeded' ? 'confirmed' : 'failed',
+        },
+        { new: true },
+      );
+
+      return updated;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  async stripeWebhook(payload: Buffer, signature: string) {
+    try {
+      const event = this.stripeService.constructWebhookEvent(
+        payload,
+        signature,
+      );
+
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+        case 'payment_intent.payment_failed':
+          const paymentIntent = event.data.object as Stripe.PaymentIntent;
+          await this.verifyPayment(paymentIntent.id);
+          break;
+      }
+
+      return { received: true };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
 
   async findAll(
     query: PaginationDto & { status?: string; search?: string },
@@ -30,7 +110,6 @@ export class TransactionService {
 
       if (search) {
         filter.$or.push(
-          { method: { $regex: search, $options: 'i' } },
           { paymentType: { $regex: search, $options: 'i' } },
           { status: { $regex: search, $options: 'i' } },
         );
@@ -54,68 +133,7 @@ export class TransactionService {
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
-      );
-    }
-  }
-
-  async initiatePayment(payload: {
-    freelancer: string;
-    client: string;
-    project: string;
-    amount: number;
-  }) {
-    try {
-      const { freelancer, client, project, amount } = payload;
-
-      const metadata = { freelancer, client, project };
-
-      const stripePayment = await this.stripeService.createPaymentIntent(
-        amount,
-        metadata,
-      );
-
-      const transaction = await this.transactionModel.create({
-        freelancer,
-        client,
-        project,
-        amount,
-        method: 'stripe',
-        paymentType: 'card',
-        metaData: JSON.stringify(metadata),
-        status: 'pending',
-      });
-
-      return {
-        clientSecret: stripePayment.client_secret,
-        transaction,
-      };
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
-      );
-    }
-  }
-
-  async verifyPayment(paymentIntentId: string) {
-    try {
-      const payment =
-        await this.stripeService.verifyPaymentIntent(paymentIntentId);
-
-      const updated = await this.transactionModel.findOneAndUpdate(
-        { metaData: { $regex: paymentIntentId } },
-        {
-          status: payment.status === 'succeeded' ? 'confirm' : 'failed',
-        },
-        { new: true },
-      );
-
-      return updated;
-    } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? error?.statusCode ?? 500,
+        error?.status ?? 500,
       );
     }
   }
