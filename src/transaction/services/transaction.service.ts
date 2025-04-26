@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Transaction } from '../schemas/transaction.schema';
@@ -50,6 +50,16 @@ export class TransactionService {
     try {
       const payment =
         await this.stripeService.verifyPaymentIntent(paymentIntentId);
+
+      const validateTransaction = await this.transactionModel.findOne({
+        transactionId: paymentIntentId,
+        status: 'pending',
+      });
+
+      if (!validateTransaction)
+        throw new BadRequestException(
+          'Like duplicate payment or invalid payment',
+        );
 
       const updated = await this.transactionModel.findOneAndUpdate(
         { transactionId: paymentIntentId },
@@ -117,9 +127,19 @@ export class TransactionService {
 
       const transactions = await this.transactionModel
         .find(filter)
+        .populate({
+          path: 'client',
+          model: 'User',
+          select: 'firstName lastName profileImage email',
+        })
+        .populate({
+          path: 'freelancer',
+          model: 'User',
+          select: 'firstName lastName profileImage email',
+        })
+        .populate({ path: 'project', model: 'Project' })
         .skip(skip)
-        .limit(limit)
-        .populate('client freelancer project');
+        .limit(limit);
 
       const total = await this.transactionModel.countDocuments(filter);
 
