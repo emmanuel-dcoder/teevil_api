@@ -10,6 +10,7 @@ import { JobModule } from './job/job.module';
 import { ProposalModule } from './proposal/propsal.module';
 import { NotificationModule } from './notification/notification.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { WithdrawalModule } from './withdrawal/withdrawal.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TransactionModule } from './transaction/transaction.module';
     ProposalModule,
     NotificationModule,
     TransactionModule,
+    WithdrawalModule,
   ],
   controllers: [AppController],
   providers: [AppService],

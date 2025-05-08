@@ -33,9 +33,15 @@ export class TransactionController {
   @ApiOperation({ summary: 'Initiate a Stripe Payment' })
   @ApiBody({ type: CreateTransactionDto })
   @ApiResponse({ status: 200, description: 'Stripe payment initiated' })
-  async initiate(@Body() transactionDto: CreateTransactionDto) {
-    const result =
-      await this.transactionService.initiatePayment(transactionDto);
+  async initiate(
+    @Body() transactionDto: CreateTransactionDto,
+    @Req() req: any,
+  ) {
+    const client = req.user?._id;
+    const result = await this.transactionService.initiatePayment({
+      client,
+      ...transactionDto,
+    });
     return successResponse({
       message: 'Stripe payment initiated',
       code: 200,

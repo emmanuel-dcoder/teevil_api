@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { Invite } from '../schemas/invite.schema';
-import { Project, ProjectDocument } from '../schemas/project.schema';
+import { ProjectDocument } from '../schemas/project.schema';
 
 export enum projectType {
   shared = 'shared',

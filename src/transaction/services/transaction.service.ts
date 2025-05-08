@@ -14,7 +14,7 @@ export class TransactionService {
     private readonly stripeService: StripePaymentIntentService,
   ) {}
 
-  async initiatePayment(payload: CreateTransactionDto) {
+  async initiatePayment(payload: CreateTransactionDto & { client: string }) {
     try {
       const { freelancer, client, project, amount } = payload;
 

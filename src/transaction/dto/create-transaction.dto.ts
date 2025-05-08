@@ -12,14 +12,6 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     example: '662aa983714edbe3f503616c',
-    description: 'id of the client',
-  })
-  @IsString()
-  @IsMongoId()
-  client: string;
-
-  @ApiProperty({
-    example: '662aa983714edbe3f503616c',
     description: 'id of the project',
   })
   @IsString()
