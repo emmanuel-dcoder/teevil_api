@@ -5,9 +5,6 @@ import {
   Req,
   Get,
   Query,
-  Param,
-  Headers,
-  RawBodyRequest,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -33,6 +30,7 @@ export class WithdrawalController {
   @ApiOperation({ summary: 'Request withdrawal' })
   @ApiBody({ type: CreateWithdrawalDto })
   @ApiResponse({ status: 200, description: 'Withdrawal request successful' })
+  @ApiResponse({ status: 400, description: 'Withdrawal request unsuccessful' })
   async initiate(
     @Body() createWithdrawalDto: CreateWithdrawalDto,
     @Req() req: any,
@@ -50,26 +48,52 @@ export class WithdrawalController {
     });
   }
 
-  // @Get()
-  // @ApiOperation({
-  //   summary: 'Get all transactions with search, pagination, and status filter',
-  // })
-  // @ApiQuery({ name: 'page', required: false, type: Number })
-  // @ApiQuery({ name: 'limit', required: false, type: Number })
-  // @ApiQuery({ name: 'search', required: false, type: String })
-  // @ApiQuery({ name: 'status', required: false, type: String })
-  // async findAll(
-  //   @Query() query: PaginationDto & { status?: string },
-  //   @Req() req: any,
-  // ) {
-  //   const userId = req.user?._id;
-  //   if (!userId) throw new UnauthorizedException('User not authenticated');
-  //   const data = await this.transactionService.findAll(query, userId);
-  //   return successResponse({
-  //     message: 'Transaction lists',
-  //     code: 200,
-  //     status: 'success',
-  //     data,
-  //   });
-  // }
+  @Get()
+  @ApiOperation({
+    summary:
+      'Get all withrawal for freelancer with search, pagination, and status filter',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, type: String })
+  @ApiResponse({ status: 200, description: 'Withrawal Lists' })
+  @ApiResponse({ status: 400, description: 'Error fetching withdrawal lists' })
+  async findAllFreelancerWithdrawal(
+    @Query() query: PaginationDto & { status?: string },
+    @Req() req: any,
+  ) {
+    const userId = req.user?._id;
+    if (!userId) throw new UnauthorizedException('User not authenticated');
+    const data = await this.withdrawalService.findFreelancerWithdrawal(
+      query,
+      userId,
+    );
+    return successResponse({
+      message: 'Withrawal Lists',
+      code: 200,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Get('all')
+  @ApiOperation({
+    summary: 'Get all withrawal with search, pagination, and status filter',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'status', required: false, type: String })
+  @ApiResponse({ status: 200, description: 'Withrawal Lists' })
+  @ApiResponse({ status: 400, description: 'Error fetching withdrawal lists' })
+  async findAll(@Query() query: PaginationDto & { status?: string }) {
+    const data = await this.withdrawalService.findAllWithdrawal(query);
+    return successResponse({
+      message: 'Withrawal Lists',
+      code: 200,
+      status: 'success',
+      data,
+    });
+  }
 }

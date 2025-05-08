@@ -76,59 +76,98 @@ export class WithdrawalService {
     }
   }
 
-  // async findAll(
-  //   query: PaginationDto & { status?: string; search?: string },
-  //   userId: string,
-  // ) {
-  //   try {
-  //     const { search, page = 1, limit = 10, status } = query;
-  //     const skip = (page - 1) * limit;
+  async findFreelancerWithdrawal(
+    query: PaginationDto & { status?: string },
+    userId: string,
+  ) {
+    try {
+      const { search, page = 1, limit = 10, status } = query;
+      const skip = (page - 1) * limit;
 
-  //     const filter: any = {
-  //       $or: [{ client: userId }, { freelancer: userId }],
-  //     };
+      const filter: any = {
+        $or: [{ client: userId }, { freelancer: userId }],
+      };
 
-  //     if (status) {
-  //       filter.status = status;
-  //     }
+      if (status) {
+        filter.status = status;
+      }
 
-  //     if (search) {
-  //       filter.$or.push(
-  //         { paymentType: { $regex: search, $options: 'i' } },
-  //         { status: { $regex: search, $options: 'i' } },
-  //       );
-  //     }
+      if (search) {
+        filter.$or.push(
+          { paymentType: { $regex: search, $options: 'i' } },
+          { status: { $regex: search, $options: 'i' } },
+        );
+      }
 
-  //     const transactions = await this.transactionModel
-  //       .find(filter)
-  //       .populate({
-  //         path: 'client',
-  //         model: 'User',
-  //         select: 'firstName lastName profileImage email',
-  //       })
-  //       .populate({
-  //         path: 'freelancer',
-  //         model: 'User',
-  //         select: 'firstName lastName profileImage email',
-  //       })
-  //       .populate({ path: 'project', model: 'Project' })
-  //       .skip(skip)
-  //       .limit(limit);
+      const withdrawal = await this.withdrawalModel
+        .find(filter)
+        .populate({
+          path: 'freelancer',
+          model: 'User',
+          select: 'firstName lastName profileImage email',
+        })
+        .skip(skip)
+        .limit(limit);
 
-  //     const total = await this.transactionModel.countDocuments(filter);
+      const total = await this.withdrawalModel.countDocuments(filter);
 
-  //     return {
-  //       total,
-  //       page,
-  //       limit,
-  //       totalPages: Math.ceil(total / limit),
-  //       data: transactions,
-  //     };
-  //   } catch (error) {
-  //     throw new HttpException(
-  //       error?.response?.message ?? error?.message,
-  //       error?.status ?? 500,
-  //     );
-  //   }
-  // }
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        data: withdrawal,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  async findAllWithdrawal(query: PaginationDto & { status?: string }) {
+    try {
+      const { search, page = 1, limit = 10, status } = query;
+      const skip = (page - 1) * limit;
+
+      const filter: any = {};
+
+      if (status) {
+        filter.status = status;
+      }
+
+      if (search) {
+        filter.$or = [
+          { paymentType: { $regex: search, $options: 'i' } },
+          { status: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      const withdrawal = await this.withdrawalModel
+        .find(filter)
+        .populate({
+          path: 'freelancer',
+          model: 'User',
+          select: 'firstName lastName profileImage email',
+        })
+        .skip(skip)
+        .limit(limit);
+
+      const total = await this.withdrawalModel.countDocuments(filter);
+
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        data: withdrawal,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
 }
