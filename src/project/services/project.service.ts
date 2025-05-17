@@ -161,6 +161,11 @@ export class ProjectService {
       const projects = await this.projectModel
         .find(filter)
         .populate({ path: 'sections', model: 'Section' })
+        .populate({
+          path: 'createdBy',
+          model: 'User',
+          select: 'firstName lastName profileImage email',
+        })
         .skip(skip)
         .limit(limit);
 
@@ -183,13 +188,20 @@ export class ProjectService {
 
   async findOne(id: string) {
     try {
-      const project = await this.projectModel.findById(id).populate({
-        path: 'sections',
-        model: 'Section',
-        populate: {
-          path: 'tasks',
-        },
-      });
+      const project = await this.projectModel
+        .findById(id)
+        .populate({
+          path: 'sections',
+          model: 'Section',
+          populate: {
+            path: 'tasks',
+          },
+        })
+        .populate({
+          path: 'createdBy',
+          model: 'User',
+          select: 'firstName lastName profileImage email',
+        });
       if (!project) throw new NotFoundException('Project not found');
       return project;
     } catch (error) {

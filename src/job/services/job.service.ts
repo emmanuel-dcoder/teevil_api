@@ -105,7 +105,15 @@ export class JobService {
         }
       }
 
-      const jobs = await this.jobModel.find(filter).skip(skip).limit(limit);
+      const jobs = await this.jobModel
+        .find(filter)
+        .populate({
+          path: 'createdBy',
+          model: 'User',
+          select: 'firstName lastName profileImage email',
+        })
+        .skip(skip)
+        .limit(limit);
 
       const total = await this.jobModel.countDocuments(filter);
 
@@ -128,7 +136,11 @@ export class JobService {
 
   async findOne(id: string) {
     try {
-      const job = await this.jobModel.findById(id);
+      const job = await this.jobModel.findById(id).populate({
+        path: 'createdBy',
+        model: 'User',
+        select: 'firstName lastName profileImage email',
+      });
       if (!job) throw new NotFoundException('Job not found');
       return job;
     } catch (error) {
