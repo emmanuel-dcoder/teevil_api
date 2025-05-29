@@ -112,15 +112,25 @@ export class ProjectController {
     name: 'search',
     required: false,
     type: String,
-    example: 'project name',
+    example: 'input search key for project',
     description: 'Search query for project title',
   })
-  async findAll(@Query() query: PaginationDto, @Req() req: any) {
+  @ApiQuery({
+    name: 'projectType',
+    required: false,
+    type: String,
+    enum: ['shared', 'personal', 'contract', 'client'],
+    description: 'Filter by project type',
+  })
+  async findAll(
+    @Query() query: PaginationDto & { projectType: string },
+    @Req() req: any,
+  ) {
     const userId = req.user?._id;
     if (!userId) throw new UnauthorizedException('User not authenticated');
-    const { page, limit, search } = query;
+    const { page, limit, search, projectType } = query;
     const data = await this.projectService.findAll(
-      { page, limit, search },
+      { page, limit, search, projectType },
       userId,
     );
 

@@ -143,7 +143,10 @@ export class ProjectService {
     }
   }
 
-  async findAll(query: PaginationDto, userId: string) {
+  async findAll(
+    query: PaginationDto & { projectType: string },
+    userId: string,
+  ) {
     try {
       const { search, page = 1, limit = 10 } = query;
       const skip = (page - 1) * limit;
@@ -157,7 +160,9 @@ export class ProjectService {
       if (search) {
         filter.title = { $regex: search, $options: 'i' };
       }
-
+      if (query.projectType) {
+        filter.projectType = query.projectType;
+      }
       const projects = await this.projectModel
         .find(filter)
         .populate({ path: 'sections', model: 'Section' })
