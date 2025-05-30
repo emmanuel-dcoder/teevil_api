@@ -47,11 +47,11 @@ export class ForgotPasswordDto {
 }
 
 export class LoginDto {
-  @ApiProperty()
+  @ApiProperty({ example: 'noblefarz7@gmail.com' })
   @IsEmail()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ example: 'vBYPve' })
   @IsString()
   password: string;
 }
