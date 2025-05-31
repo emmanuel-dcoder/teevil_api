@@ -36,6 +36,7 @@ import {
 } from '@nestjs/swagger';
 import { successResponse } from 'src/config/response';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('api/v1/user')
 @ApiTags('User')
@@ -122,6 +123,29 @@ export class UserController {
     const data = await this.userService.create(createUserDto);
     return successResponse({
       message: 'User created successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Put('edit-profile/:id')
+  @ApiOperation({
+    summary: 'Edit user profile',
+  })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile updated successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid data provided.' })
+  async editUserProfile(
+    @Param('id') user: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const data = await this.userService.editUserProfile(user, updateUserDto);
+    return successResponse({
+      message: 'User profile updated successfully.',
       code: HttpStatus.OK,
       status: 'success',
       data,

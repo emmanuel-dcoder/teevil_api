@@ -33,6 +33,7 @@ import { QuestionTypeList } from './schemas/question-type.schema';
 import { Invite } from 'src/project/schemas/invite.schema';
 import { NotificationService } from 'src/notification/services/notification.service';
 import { InviteWithProject } from 'src/project/enumAndTypes/project.enum';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -123,6 +124,30 @@ export class UserService {
       delete createUser.password;
 
       return createUser;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  //edit user profile
+  async editUserProfile(user: string, UpdateUserDto: UpdateUserDto) {
+    try {
+      const validateUser = await this.userModel.findOne({
+        _id: new mongoose.Types.ObjectId(user),
+      });
+
+      if (!validateUser) throw new BadRequestException('Invalid user id');
+
+      await this.userModel.findOneAndUpdate(
+        {
+          _id: new mongoose.Types.ObjectId(user),
+        },
+        { ...UpdateUserDto },
+        { new: true, runValidators: true },
+      );
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
