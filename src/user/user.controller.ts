@@ -27,6 +27,7 @@ import {
   VerifyOtpDto,
 } from './dto/create-user.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
@@ -123,29 +124,6 @@ export class UserController {
     const data = await this.userService.create(createUserDto);
     return successResponse({
       message: 'User created successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
-  }
-
-  @Put('edit-profile/:id')
-  @ApiOperation({
-    summary: 'Edit user profile',
-  })
-  @ApiBody({ type: UpdateUserDto })
-  @ApiResponse({
-    status: 200,
-    description: 'User profile updated successfully.',
-  })
-  @ApiResponse({ status: 400, description: 'Invalid data provided.' })
-  async editUserProfile(
-    @Param('id') user: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    const data = await this.userService.editUserProfile(user, updateUserDto);
-    return successResponse({
-      message: 'User profile updated successfully.',
       code: HttpStatus.OK,
       status: 'success',
       data,
@@ -280,6 +258,7 @@ export class UserController {
   }
 
   @Post('change-password')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Change Password',
     description: 'Allows an authenticated user to change their password.',
@@ -306,6 +285,7 @@ export class UserController {
   }
 
   @Put('visibility')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update User Visibility',
     description:
@@ -330,6 +310,7 @@ export class UserController {
   }
 
   @Post('delete-account')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete Account',
     description: 'Allows an authenticated user to delete their account.',
@@ -349,6 +330,28 @@ export class UserController {
     const data = await this.userService.deleteAccount(userId, dto);
     return successResponse({
       message: 'Account deleted successfully.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Put('edit-profile/:id')
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Edit user profile',
+  })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile updated successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid data provided.' })
+  async editUserProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
+    const user = req.user._id;
+    const data = await this.userService.editUserProfile(user, updateUserDto);
+    return successResponse({
+      message: 'User profile updated successfully.',
       code: HttpStatus.OK,
       status: 'success',
       data,
