@@ -23,7 +23,7 @@ import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { successResponse } from 'src/config/response';
 
-@ApiTags('Transaction')
+@ApiTags('Transaction and Payment history')
 @Controller('api/v1/transaction')
 @ApiBearerAuth()
 export class TransactionController {
@@ -76,12 +76,18 @@ export class TransactionController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all transactions with search, pagination, and status filter',
+    summary:
+      'Get all transactions or payment history with search, pagination, and status filter',
   })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'search', required: false, type: String })
-  @ApiQuery({ name: 'status', required: false, type: String })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    enum: ['pending', 'confirmed', 'failed', 'in-reveiew'],
+  })
   async findAll(
     @Query() query: PaginationDto & { status?: string },
     @Req() req: any,
