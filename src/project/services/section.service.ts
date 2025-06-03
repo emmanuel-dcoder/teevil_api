@@ -43,15 +43,13 @@ export class SectionService {
         title,
         project: new mongoose.Types.ObjectId(projectId),
       });
-
       if (!section) throw new BadRequestException('Unable to create section');
       await this.projectModel.findByIdAndUpdate(
-        { project: new mongoose.Types.ObjectId(projectId) },
+        { _id: new mongoose.Types.ObjectId(projectId) },
         {
           $push: { sections: section._id },
         },
       );
-
       return section;
     } catch (error) {
       throw new HttpException(
