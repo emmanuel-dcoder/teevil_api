@@ -303,7 +303,7 @@ export class ProjectService {
       });
 
       if (!project) {
-        throw new NotFoundException('Project not found');
+        throw new NotFoundException('Project not found or invalid project id');
       }
 
       return project.usersAdded;
