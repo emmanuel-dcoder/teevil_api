@@ -293,4 +293,25 @@ export class ProjectService {
       );
     }
   }
+
+  async getProjectUsers(projectId: string) {
+    try {
+      const project = await this.projectModel.findById(projectId).populate({
+        path: 'usersAdded',
+        model: 'User',
+        select: 'firstName lastName profileImage email phone',
+      });
+
+      if (!project) {
+        throw new NotFoundException('Project not found');
+      }
+
+      return project.usersAdded;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
 }

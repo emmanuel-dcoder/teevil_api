@@ -200,4 +200,21 @@ export class ProjectController {
       data,
     });
   }
+
+  @Get('collaborators/:id')
+  @ApiOperation({
+    summary:
+      'Fetch all collaborators or users added to a project with project id',
+  })
+  @ApiResponse({ status: 200, description: 'List of collaborators' })
+  @ApiResponse({ status: 404, description: 'List not found' })
+  async projectUsers(@Param('id') id: string) {
+    const data = await this.projectService.getProjectUsers(id);
+    return successResponse({
+      message: 'List of collaborators',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
 }
