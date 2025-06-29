@@ -24,7 +24,7 @@ export class Project {
 
   @Prop({
     type: String,
-    enum: ['pending', 'in-progress', 'review', 'pending'],
+    enum: ['pending', 'in-progress', 'review', 'completed'],
     default: 'in-progress',
   })
   status: 'in-progress' | 'review' | 'completed' | 'pending';

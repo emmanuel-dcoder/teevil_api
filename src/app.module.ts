@@ -11,6 +11,7 @@ import { ProposalModule } from './proposal/propsal.module';
 import { NotificationModule } from './notification/notification.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { WithdrawalModule } from './withdrawal/withdrawal.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { WithdrawalModule } from './withdrawal/withdrawal.module';
     NotificationModule,
     TransactionModule,
     WithdrawalModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
