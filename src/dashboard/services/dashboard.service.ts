@@ -9,18 +9,43 @@ export class DashboardService {
     @InjectModel(Project.name) private projectModel: Model<Project>,
   ) {}
 
-  async freelancerDashboardAnalysis(): Promise<any> {
+  async freelancerDashbaordAnalysis(
+    payload: { day?: string; month?: string; year?: string },
+    req: any,
+  ): Promise<any> {
     try {
-      const twelveMonthsAgo = new Date();
-      twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
+      const now = new Date();
+      let startDate: Date;
 
+      if (payload?.day) {
+        startDate = new Date(payload.day);
+        startDate.setHours(0, 0, 0, 0);
+      } else if (payload?.month) {
+        const [year, month] = payload.month.split('-').map(Number);
+        startDate = new Date(year, month - 1, 1);
+      } else if (payload?.year) {
+        const year = parseInt(payload.year);
+        startDate = new Date(year, 0, 1);
+      } else {
+        // default to last 12 months
+        startDate = new Date();
+        startDate.setFullYear(now.getFullYear() - 1);
+      }
+
+      const matchQuery: any = {
+        createdAt: { $gte: startDate },
+        // status: 'completed',
+      };
+
+      // Optional: match projects created by current user
+      if (req?.user?._id) {
+        matchQuery.$or = [
+          { createdBy: req.user._id },
+          { usersAdded: req.user._id },
+        ];
+      }
       const proposal = await this.projectModel.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: twelveMonthsAgo },
-            status: 'completed',
-          },
-        },
+        { $match: matchQuery },
         {
           $project: {
             month: { $month: '$createdAt' },
@@ -34,9 +59,7 @@ export class DashboardService {
             count: { $sum: 1 },
           },
         },
-        {
-          $sort: { '_id.month': 1 },
-        },
+        { $sort: { '_id.month': 1 } },
         {
           $addFields: {
             monthName: {

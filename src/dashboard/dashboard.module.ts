@@ -32,4 +32,8 @@ import { MailService } from 'src/core/mail/email';
     MailService,
   ],
 })
-export class DashboardModule {}
+export class DashboardModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(VerifyTokenMiddleware).forRoutes(DashboardController);
+  }
+}
