@@ -23,6 +23,12 @@ export class Transaction {
   })
   status: 'pending' | 'confirm' | 'failed' | 'in-review';
 
+  @Prop({
+    default: 'pending',
+    enum: ['pending', 'confirmed', 'failed', 'in-reveiew'],
+  })
+  payoutStatus: 'pending' | 'confirm' | 'failed' | 'in-review';
+
   @Prop({ required: true })
   channel: string;
 

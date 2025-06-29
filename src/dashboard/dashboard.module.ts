@@ -14,6 +14,11 @@ import {
 } from 'src/notification/schemas/notification.schema';
 import { NotificationService } from 'src/notification/services/notification.service';
 import { MailService } from 'src/core/mail/email';
+import {
+  Transaction,
+  TransactionSchema,
+} from 'src/transaction/schemas/transaction.schema';
+import { Proposal, ProposalSchema } from 'src/proposal/schemas/proposal.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -22,6 +27,8 @@ import { MailService } from 'src/core/mail/email';
       { name: Invite.name, schema: InviteSchema },
       { name: User.name, schema: UserSchema },
       { name: Notification.name, schema: NotificationSchema },
+      { name: Transaction.name, schema: TransactionSchema },
+      { name: Proposal.name, schema: ProposalSchema },
     ]),
   ],
   controllers: [DashboardController],

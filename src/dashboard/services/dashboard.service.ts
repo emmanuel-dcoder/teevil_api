@@ -1,14 +1,23 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Project } from 'src/project/schemas/project.schema';
+import { Proposal } from 'src/proposal/schemas/proposal.schema';
+import { Transaction } from 'src/transaction/schemas/transaction.schema';
 
 @Injectable()
 export class DashboardService {
   constructor(
     @InjectModel(Project.name) private projectModel: Model<Project>,
+    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
+    @InjectModel(Proposal.name) private proposalModel: Model<Proposal>,
   ) {}
 
+  /**freealncer dashbaord chart analysis */
   async freelancerDashbaordAnalysis(
     payload: { day?: string; month?: string; year?: string },
     req: any,
@@ -95,6 +104,95 @@ export class DashboardService {
       ]);
 
       return proposal;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  /**freelancer card analysis */
+  async freelanncersCards(req: any): Promise<any> {
+    try {
+      const userId = req?.user?._id;
+      if (!userId) throw new UnauthorizedException('Unauthorized');
+
+      const [
+        totalProjects,
+        totalCompletedProjects,
+        totalProposals,
+        totalEarnings,
+        availableBalance,
+        totalWithdrawnAmount,
+      ] = await Promise.all([
+        this.projectModel.countDocuments({
+          $or: [{ createdBy: userId }, { usersAdded: userId }],
+        }),
+        this.projectModel.countDocuments({
+          $or: [{ createdBy: userId }, { usersAdded: userId }],
+          status: 'completed',
+        }),
+        this.proposalModel.countDocuments({ submittedBy: userId }),
+        this.transactionModel.aggregate([
+          {
+            $match: {
+              freelancer: userId,
+              status: 'confirm',
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalAmount: { $sum: '$amount' },
+            },
+          },
+        ]),
+        this.transactionModel.aggregate([
+          {
+            $match: {
+              freelancer: userId,
+              status: 'confirm',
+              payoutStatus: 'pending',
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalAmount: { $sum: '$amount' },
+            },
+          },
+        ]),
+        this.transactionModel.aggregate([
+          {
+            $match: {
+              freelancer: userId,
+              status: 'confirm',
+              payoutStatus: 'confirm',
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              totalAmount: { $sum: '$amount' },
+            },
+          },
+        ]),
+      ]);
+
+      return {
+        totalProjects,
+        totalCompletedProjects,
+        totalProposals,
+        totalEarnings:
+          totalEarnings.length > 0 ? totalEarnings[0].totalAmount : 0,
+        availableBalance:
+          availableBalance.length > 0 ? availableBalance[0].totalAmount : 0,
+        totalWithdrawnAmount:
+          totalWithdrawnAmount.length > 0
+            ? totalWithdrawnAmount[0].totalAmount
+            : 0,
+      };
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

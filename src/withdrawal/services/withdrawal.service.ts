@@ -35,6 +35,9 @@ export class WithdrawalService {
        * put a check to ascertain the wallet balance of the freelancer here before create or requesting withdrawal
        */
 
+      /**
+       * also make that transaction payout status is set to confirm once withrawal is successful
+       */
       let transactionId;
       let validateTransactionId;
 
