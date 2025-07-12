@@ -142,7 +142,7 @@ export class ClientController {
     });
   }
 
-  @Get('questions')
+  @Get('questions/single-agency')
   @ApiOperation({
     summary: 'Get questions based on type on params',
   })
@@ -166,7 +166,7 @@ export class ClientController {
     });
   }
 
-  @Get('client/questions')
+  @Get('questions/agency-account')
   @ApiOperation({
     summary: 'Get clients questions based on type on params',
   })

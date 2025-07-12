@@ -38,82 +38,15 @@ import {
 import { successResponse } from 'src/config/response';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  UserClientQuestionTypeEnum,
+  UserQuestionTypeEnum,
+} from './enum/user.enum';
 
 @Controller('api/v1/user')
 @ApiTags('User/Freelancer')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Post('questions')
-  @ApiOperation({
-    summary: 'Post Questions',
-  })
-  @ApiBody({ type: FreelancerQuestionTypeListDto })
-  @ApiResponse({ status: 200, description: 'Question created successfully' })
-  @ApiResponse({ status: 401, description: 'Unable to create Question' })
-  async createQuestion(
-    @Body() questionTypeListDto: FreelancerQuestionTypeListDto,
-  ) {
-    const data = await this.userService.createQuestion(questionTypeListDto);
-    return successResponse({
-      message: 'Question created successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
-  }
-
-  @Get('questions')
-  @ApiOperation({
-    summary: 'Get questions based on type on params',
-  })
-  @ApiQuery({
-    name: 'type',
-    required: false,
-    description: 'Fetch questions based on type',
-    type: String,
-    example: `e.g experience, paymentType, interest, primarySkill`,
-  })
-  @ApiResponse({ status: 200, description: 'Question retrieved successfully' })
-  @ApiResponse({ status: 401, description: 'Unable to retrieve questions' })
-  async fetchQuestions(@Query('type') type: string) {
-    const data = await this.userService.fetchQuestion(type);
-    return successResponse({
-      message: 'Question retrieved successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
-  }
-
-  @Get('client/questions')
-  @ApiOperation({
-    summary: 'Get clients questions based on type on params',
-  })
-  @ApiQuery({
-    name: 'type',
-    required: true,
-    description: 'Fetch questions based on type',
-    type: String,
-    example: `e.g workPreference, budget, typeOfProject, agencyStaffNo, projectSize, hireType`,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Client question retrieved successfully',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unable to retrieve client questions',
-  })
-  async fetchClientQuestion(@Query('type') type: string) {
-    const data = await this.userService.fetchQuestion(type);
-    return successResponse({
-      message: 'Client retrieved successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
-  }
 
   @Post()
   @ApiOperation({
@@ -253,6 +186,79 @@ export class UserController {
     const data = await this.userService.forgotPassword(dto);
     return successResponse({
       message: 'Password reset OTP sent.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Post('questions')
+  @ApiOperation({
+    summary: 'Post Questions',
+  })
+  @ApiBody({ type: FreelancerQuestionTypeListDto })
+  @ApiResponse({ status: 200, description: 'Question created successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to create Question' })
+  async createQuestion(
+    @Body() questionTypeListDto: FreelancerQuestionTypeListDto,
+  ) {
+    const data = await this.userService.createQuestion(questionTypeListDto);
+    return successResponse({
+      message: 'Question created successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Get('questions')
+  @ApiOperation({
+    summary: 'Get questions based on type on params',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    description: 'Fetch questions based on type',
+    type: String,
+    enum: UserQuestionTypeEnum,
+    example: `e.g experience, paymentType, interest, primarySkill`,
+  })
+  @ApiResponse({ status: 200, description: 'Question retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to retrieve questions' })
+  async fetchQuestions(@Query('type') type: string) {
+    const data = await this.userService.fetchQuestion(type);
+    return successResponse({
+      message: 'Question retrieved successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Get('client/questions')
+  @ApiOperation({
+    summary: 'Get clients questions based on type on params',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: true,
+    description: 'Fetch questions based on type',
+    type: String,
+    enum: UserClientQuestionTypeEnum,
+    example: `e.g workPreference, budget, typeOfProject, agencyStaffNo, projectSize, hireType`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Client question retrieved successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unable to retrieve client questions',
+  })
+  async fetchClientQuestion(@Query('type') type: string) {
+    const data = await this.userService.fetchQuestion(type);
+    return successResponse({
+      message: 'Client retrieved successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,
