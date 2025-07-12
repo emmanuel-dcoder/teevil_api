@@ -14,6 +14,10 @@ export enum QuestionType {
   agencyStaffNo = 'agencyStaffNo',
   projectSize = 'projectSize',
   hireType = 'hireType',
+  clientProjectType = 'clientProjectType',
+  clientWorkPreference = 'clientWorkPreference',
+  clientBudget = 'clientBudget',
+  clientJobType = 'clientJobType',
 }
 
 export enum ClientType {

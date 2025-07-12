@@ -13,19 +13,7 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import {
-  ChangePasswordDto,
-  ClientTypeDto,
-  CreateUserDto,
-  DeleteAccountDto,
-  ForgotPasswordDto,
-  LoginDto,
-  QuestionDto,
-  FreelancerQuestionTypeListDto,
-  UpdateVisibleDto,
-  VerifyOtpDto,
-} from './dto/create-user.dto';
+
 import {
   ApiBearerAuth,
   ApiBody,
@@ -37,23 +25,114 @@ import {
 } from '@nestjs/swagger';
 import { successResponse } from 'src/config/response';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { UserService } from 'src/user/user.service';
+import {
+  ChangePasswordDto,
+  ClientTypeDto,
+  CreateUserDto,
+  DeleteAccountDto,
+  ForgotPasswordDto,
+  LoginDto,
+  QuestionDto,
+  UpdateVisibleDto,
+  VerifyOtpDto,
+  ClientQuestionTypeListDto,
+} from 'src/user/dto/create-user.dto';
+import { ClientQuestionTypeEnum } from './enum/client.enum';
 
-@Controller('api/v1/user')
-@ApiTags('User/Freelancer')
-export class UserController {
+@Controller('api/v1/client')
+@ApiTags('Client')
+export class ClientController {
   constructor(private readonly userService: UserService) {}
+
+  @Post()
+  @ApiOperation({
+    summary: 'Create client',
+  })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({ status: 200, description: 'Client created successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to create client' })
+  async create(@Body() createUserDto: CreateUserDto) {
+    const { accountType } = createUserDto;
+    if (accountType !== 'client')
+      throw new BadRequestException('Account type must be client');
+    const data = await this.userService.create(createUserDto);
+    return successResponse({
+      message: 'Client created successfully',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Post('verify-otp')
+  @ApiOperation({
+    summary: 'Verify OTP',
+    description:
+      'Verifies the OTP sent to the clinet email and activates the account.',
+  })
+  @ApiBody({ type: VerifyOtpDto })
+  @ApiResponse({ status: 200, description: 'Client verified successfully.' })
+  @ApiResponse({ status: 400, description: 'Invalid OTP.' })
+  async verifyOtp(@Body() dto: VerifyOtpDto) {
+    const data = await this.userService.verifyOtp(dto);
+    return successResponse({
+      message: 'Client verified successfully.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Post('resend-otp')
+  @ApiOperation({
+    summary: 'Resend OTP',
+    description: `Sends a new OTP to the client's email for verification.`,
+  })
+  @ApiBody({
+    schema: {
+      properties: { email: { type: 'string', example: 'user@example.com' } },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'New OTP sent to email.' })
+  @ApiResponse({ status: 400, description: 'Client not found.' })
+  async resendOtp(@Body('email') email: string) {
+    const data = await this.userService.resendOtp(email);
+    return successResponse({
+      message: 'New OTP sent to email.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Post('forgot-password')
+  @ApiOperation({
+    summary: 'Forgot Password',
+    description: 'Requests a password reset OTP via email.',
+  })
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiResponse({ status: 200, description: 'Password reset OTP sent.' })
+  @ApiResponse({ status: 400, description: 'Client not found.' })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    const data = await this.userService.forgotPassword(dto);
+    return successResponse({
+      message: 'Password reset OTP sent.',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
 
   @Post('questions')
   @ApiOperation({
     summary: 'Post Questions',
   })
-  @ApiBody({ type: FreelancerQuestionTypeListDto })
+  @ApiBody({ type: ClientQuestionTypeListDto })
   @ApiResponse({ status: 200, description: 'Question created successfully' })
   @ApiResponse({ status: 401, description: 'Unable to create Question' })
-  async createQuestion(
-    @Body() questionTypeListDto: FreelancerQuestionTypeListDto,
-  ) {
+  async createQuestion(@Body() questionTypeListDto: ClientQuestionTypeListDto) {
     const data = await this.userService.createQuestion(questionTypeListDto);
     return successResponse({
       message: 'Question created successfully',
@@ -72,7 +151,8 @@ export class UserController {
     required: false,
     description: 'Fetch questions based on type',
     type: String,
-    example: `e.g experience, paymentType, interest, primarySkill`,
+    enum: ClientQuestionTypeEnum,
+    example: `e.g clientProjectType, clientWorkPreference, clientBudget, clientJobType`,
   })
   @ApiResponse({ status: 200, description: 'Question retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unable to retrieve questions' })
@@ -95,7 +175,8 @@ export class UserController {
     required: true,
     description: 'Fetch questions based on type',
     type: String,
-    example: `e.g workPreference, budget, typeOfProject, agencyStaffNo, projectSize, hireType`,
+    enum: ClientQuestionTypeEnum,
+    example: `e.g clientProjectType, clientWorkPreference, clientBudget, clientJobType`,
   })
   @ApiResponse({
     status: 200,
@@ -109,23 +190,6 @@ export class UserController {
     const data = await this.userService.fetchQuestion(type);
     return successResponse({
       message: 'Client retrieved successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
-  }
-
-  @Post()
-  @ApiOperation({
-    summary: 'Create User',
-  })
-  @ApiBody({ type: CreateUserDto })
-  @ApiResponse({ status: 200, description: 'User created successfully' })
-  @ApiResponse({ status: 401, description: 'Unable to create user' })
-  async create(@Body() createUserDto: CreateUserDto) {
-    const data = await this.userService.create(createUserDto);
-    return successResponse({
-      message: 'User created successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,
@@ -158,7 +222,7 @@ export class UserController {
 
   @Post('login')
   @ApiOperation({
-    summary: 'User Login',
+    summary: 'Client Login',
     description: 'Logs in the user and returns a JWT token.',
   })
   @ApiBody({ type: LoginDto })
@@ -180,79 +244,20 @@ export class UserController {
 
   @Get('logged-in')
   @ApiOperation({
-    summary: 'Get logged in user',
+    summary: 'Get logged in Client',
   })
-  @ApiResponse({ status: 200, description: 'User retrieved successfully' })
-  @ApiResponse({ status: 401, description: 'Unable to retrieve user' })
+  @ApiResponse({ status: 200, description: 'Client retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unable to retrieve client' })
   async loggedInUser(@Req() req: any) {
     const userId = req.user._id;
     console.log('user details', req.user);
 
     if (!req) {
-      throw new UnauthorizedException('User not authenticated');
+      throw new UnauthorizedException('Client not authenticated');
     }
     const data = await this.userService.loggedInUser(userId);
     return successResponse({
-      message: 'User retrieved successfully',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
-  }
-
-  @Post('verify-otp')
-  @ApiOperation({
-    summary: 'Verify OTP',
-    description:
-      'Verifies the OTP sent to the user email and activates the account.',
-  })
-  @ApiBody({ type: VerifyOtpDto })
-  @ApiResponse({ status: 200, description: 'User verified successfully.' })
-  @ApiResponse({ status: 400, description: 'Invalid OTP.' })
-  async verifyOtp(@Body() dto: VerifyOtpDto) {
-    const data = await this.userService.verifyOtp(dto);
-    return successResponse({
-      message: 'User verified successfully.',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
-  }
-
-  @Post('resend-otp')
-  @ApiOperation({
-    summary: 'Resend OTP',
-    description: 'Sends a new OTP to the user’s email for verification.',
-  })
-  @ApiBody({
-    schema: {
-      properties: { email: { type: 'string', example: 'user@example.com' } },
-    },
-  })
-  @ApiResponse({ status: 200, description: 'New OTP sent to email.' })
-  @ApiResponse({ status: 400, description: 'User not found.' })
-  async resendOtp(@Body('email') email: string) {
-    const data = await this.userService.resendOtp(email);
-    return successResponse({
-      message: 'New OTP sent to email.',
-      code: HttpStatus.OK,
-      status: 'success',
-      data,
-    });
-  }
-
-  @Post('forgot-password')
-  @ApiOperation({
-    summary: 'Forgot Password',
-    description: 'Requests a password reset OTP via email.',
-  })
-  @ApiBody({ type: ForgotPasswordDto })
-  @ApiResponse({ status: 200, description: 'Password reset OTP sent.' })
-  @ApiResponse({ status: 400, description: 'User not found.' })
-  async forgotPassword(@Body() dto: ForgotPasswordDto) {
-    const data = await this.userService.forgotPassword(dto);
-    return successResponse({
-      message: 'Password reset OTP sent.',
+      message: 'Client retrieved successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,
@@ -263,19 +268,19 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Change Password',
-    description: 'Allows an authenticated user to change their password.',
+    description: 'Allows an authenticated client to change their password.',
   })
   @ApiBody({ type: ChangePasswordDto })
   @ApiResponse({ status: 200, description: 'Password changed successfully.' })
   @ApiResponse({
     status: 400,
-    description: 'Invalid old password or user not found.',
+    description: 'Invalid old password or client not found.',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
     const userId = req.user._id;
     if (!userId) {
-      throw new UnauthorizedException('User not authenticated');
+      throw new UnauthorizedException('Client not authenticated');
     }
     const data = await this.userService.changePassword(userId, dto);
     return successResponse({
@@ -289,13 +294,13 @@ export class UserController {
   @Put('visibility')
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Update User Visibility',
+    summary: 'Update Client Visibility',
     description:
-      'Allows an authenticated user to update their visibility status.',
+      'Allows an authenticated Client to update their visibility status.',
   })
   @ApiBody({ type: UpdateVisibleDto })
   @ApiResponse({ status: 200, description: 'Visibility updated successfully.' })
-  @ApiResponse({ status: 400, description: 'Invalid user or input.' })
+  @ApiResponse({ status: 400, description: 'Invalid client or input.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async updateVisible(@Req() req: any, @Body() dto: UpdateVisibleDto) {
     const userId = req.user._id;
@@ -315,13 +320,13 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete Account',
-    description: 'Allows an authenticated user to delete their account.',
+    description: 'Allows an authenticated client to delete their account.',
   })
   @ApiBody({ type: DeleteAccountDto })
   @ApiResponse({ status: 200, description: 'Account deleted successfully.' })
   @ApiResponse({
     status: 400,
-    description: 'Invalid password or user not found.',
+    description: 'Invalid password or client not found.',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   async deleteAccount(@Req() req: any, @Body() dto: DeleteAccountDto) {
@@ -341,19 +346,19 @@ export class UserController {
   @Put('edit-profile/:id')
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Edit user profile',
+    summary: 'Edit client profile',
   })
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({
     status: 200,
-    description: 'User profile updated successfully.',
+    description: 'Client profile updated successfully.',
   })
   @ApiResponse({ status: 400, description: 'Invalid data provided.' })
   async editUserProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
     const user = req.user._id;
     const data = await this.userService.editUserProfile(user, updateUserDto);
     return successResponse({
-      message: 'User profile updated successfully.',
+      message: 'Client profile updated successfully.',
       code: HttpStatus.OK,
       status: 'success',
       data,
@@ -363,7 +368,7 @@ export class UserController {
   @Put('update-question/:id')
   @ApiOperation({
     summary: 'Update Question',
-    description: 'Updates or creates a user question entry.',
+    description: 'Updates or creates a client question entry.',
   })
   @ApiBody({ type: QuestionDto })
   @ApiResponse({ status: 200, description: 'Question updated successfully.' })
@@ -380,7 +385,7 @@ export class UserController {
 
   @Put(':id/profile-picture')
   @ApiOperation({
-    summary: 'Upload profile picture for the user, use form data (Key: file)',
+    summary: 'Upload profile picture for the client, use form data (Key: file)',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -398,7 +403,7 @@ export class UserController {
     status: 200,
     description: 'Profile picture uploaded successfully',
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 404, description: 'Client not found' })
   @UseInterceptors(FileInterceptor('file'))
   async uploadProfilePicture(
     @Param('id') userId: string,

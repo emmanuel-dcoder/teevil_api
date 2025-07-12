@@ -109,7 +109,7 @@ export class QuestionDto {
   title: string;
 }
 
-export class QuestionTypeListDto {
+export class FreelancerQuestionTypeListDto {
   @ApiProperty()
   @IsString()
   type: QuestionType;
@@ -163,6 +163,32 @@ export class QuestionTypeListDto {
   @IsOptional()
   @IsString()
   typeOfProject: string;
+}
+
+export class ClientQuestionTypeListDto {
+  @ApiProperty()
+  @IsString()
+  type: QuestionType;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientProjectType: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientWorkPreference: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientBudget: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientJobType: string;
 }
 
 export class ChangePasswordDto {

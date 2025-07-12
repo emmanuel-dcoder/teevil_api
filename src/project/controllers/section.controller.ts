@@ -26,7 +26,7 @@ import { UpdateSectionDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { SectionService } from '../services/section.service';
 
-@ApiTags('Section')
+@ApiTags('Freelancer Section')
 @ApiBearerAuth()
 @Controller('api/v1/section')
 export class SectionController {

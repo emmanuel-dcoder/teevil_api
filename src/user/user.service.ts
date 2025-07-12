@@ -12,9 +12,10 @@ import {
   DeleteAccountDto,
   ForgotPasswordDto,
   LoginDto,
-  QuestionTypeListDto,
+  FreelancerQuestionTypeListDto,
   UpdateVisibleDto,
   VerifyOtpDto,
+  ClientQuestionTypeListDto,
 } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
@@ -48,7 +49,9 @@ export class UserService {
     private readonly notificationService: NotificationService,
   ) {}
 
-  async createQuestion(questionTypeDto: QuestionTypeListDto) {
+  async createQuestion(
+    questionTypeDto: FreelancerQuestionTypeListDto | ClientQuestionTypeListDto,
+  ) {
     try {
       const questions = await this.questionTypeModel.create(questionTypeDto);
       if (!questions) throw new BadGatewayException('Unable to save questions');

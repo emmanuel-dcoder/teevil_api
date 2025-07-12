@@ -23,7 +23,7 @@ import { ProposalService } from '../services/proposal.service';
 import { CreateProposalDto } from '../dto/create-proposal.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 
-@ApiTags('Proposal')
+@ApiTags('Freelancer Proposal')
 @Controller('api/v1/proposal')
 @ApiBearerAuth()
 export class ProposalController {

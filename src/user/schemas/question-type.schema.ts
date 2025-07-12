@@ -38,6 +38,18 @@ export class QuestionTypeList {
 
   @Prop({ type: String })
   hireType: string;
+
+  @Prop({ type: String })
+  clientProjectType: string;
+
+  @Prop({ type: String })
+  clientWorkPreference: string;
+
+  @Prop({ type: String })
+  clientBudget: string;
+
+  @Prop({ type: String })
+  clientJobType: string;
 }
 
 export const QuestionTypeListSchema =

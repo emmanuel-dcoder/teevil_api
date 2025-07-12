@@ -30,7 +30,7 @@ import { CreateTaskDto, UpdateSubTaskDto } from '../dto/create-project.dto';
 import { UpdateTaskDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 
-@ApiTags('Tasks')
+@ApiTags('Freelancer Tasks')
 @ApiBearerAuth()
 @Controller('api/v1/tasks')
 export class TaskController {
