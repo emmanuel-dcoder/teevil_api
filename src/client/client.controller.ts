@@ -39,7 +39,10 @@ import {
   VerifyOtpDto,
   ClientQuestionTypeListDto,
 } from 'src/user/dto/create-user.dto';
-import { ClientQuestionTypeEnum } from './enum/client.enum';
+import {
+  ClientAgencyQuestionTypeEnum,
+  ClientQuestionTypeEnum,
+} from './enum/client.enum';
 
 @Controller('api/v1/client')
 @ApiTags('Client')
@@ -175,8 +178,8 @@ export class ClientController {
     required: true,
     description: 'Fetch questions based on type',
     type: String,
-    enum: ClientQuestionTypeEnum,
-    example: `e.g clientProjectType, clientWorkPreference, clientBudget, clientJobType`,
+    enum: ClientAgencyQuestionTypeEnum,
+    example: `e.g numberOfStaff, sizeOfProject, jobType`,
   })
   @ApiResponse({
     status: 200,
@@ -189,7 +192,7 @@ export class ClientController {
   async fetchClientQuestion(@Query('type') type: string) {
     const data = await this.userService.fetchQuestion(type);
     return successResponse({
-      message: 'Client retrieved successfully',
+      message: 'Questions retrieved successfully',
       code: HttpStatus.OK,
       status: 'success',
       data,

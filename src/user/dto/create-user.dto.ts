@@ -189,6 +189,21 @@ export class ClientQuestionTypeListDto {
   @IsOptional()
   @IsString()
   clientJobType: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  numberOfStaff: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  sizeOfProject: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  jobType: string;
 }
 
 export class ChangePasswordDto {
