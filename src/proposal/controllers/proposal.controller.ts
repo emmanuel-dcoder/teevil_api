@@ -92,10 +92,13 @@ export class ProposalController {
     @Req() req: any,
   ) {
     const userId = req.user?._id;
+    const accountType = req.user.accountType;
     if (!userId) throw new UnauthorizedException('User not authenticated');
-
+    if (!accountType || accountType !== 'freelancer')
+      throw new UnauthorizedException(
+        'Only freelancers are allowed to use this endpoint',
+      );
     const data = await this.proposalService.findAll(query, userId);
-
     return successResponse({
       message: 'Freelancer proposals list',
       code: HttpStatus.OK,
@@ -145,13 +148,16 @@ export class ProposalController {
     @Req() req: any,
   ) {
     const userId = req.user?._id;
+    const accountType = req.user.accountType;
     if (!userId) throw new UnauthorizedException('User not authenticated');
-
+    if (!accountType || accountType !== 'client')
+      throw new UnauthorizedException(
+        'Only clients are allowed to use this endpoint',
+      );
     const data = await this.proposalService.findAllProposalsForClients(
       query,
       userId,
     );
-
     return successResponse({
       message: 'Client proposals list',
       code: HttpStatus.OK,
