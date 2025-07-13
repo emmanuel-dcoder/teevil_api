@@ -51,11 +51,13 @@ export class ProposalController {
     });
   }
 
+  /**freealncers proposal list */
   @Get()
   @ApiOperation({
-    summary: 'Get all proposals with search, pagination and status filter',
+    summary:
+      'Get all proposals by freelancer with search, pagination and status filter. this endpoint is only for freelancer',
   })
-  @ApiResponse({ status: 200, description: 'Proposals list' })
+  @ApiResponse({ status: 200, description: 'Freelancer proposals list' })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -95,7 +97,63 @@ export class ProposalController {
     const data = await this.proposalService.findAll(query, userId);
 
     return successResponse({
-      message: 'Proposal lists',
+      message: 'Freelancer proposals list',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  /**freealncers proposal list */
+  @Get('client')
+  @ApiOperation({
+    summary:
+      'Get all proposals by clientwith search, pagination and status filter. This endpoint is only for client',
+  })
+  @ApiResponse({ status: 200, description: 'Client proposals list' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    example: 1,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    example: 10,
+    description: 'Number of items per page (default: 10)',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    example: 'project name',
+    description: 'Search query for proposal',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    example: 'pending',
+    description:
+      'Filter proposals by status (pending, accepted, rejected, under-review)',
+  })
+  async findAllClientProposal(
+    @Query() query: PaginationDto & { status?: string },
+    @Req() req: any,
+  ) {
+    const userId = req.user?._id;
+    if (!userId) throw new UnauthorizedException('User not authenticated');
+
+    const data = await this.proposalService.findAllProposalsForClients(
+      query,
+      userId,
+    );
+
+    return successResponse({
+      message: 'Client proposals list',
       code: HttpStatus.OK,
       status: 'success',
       data,

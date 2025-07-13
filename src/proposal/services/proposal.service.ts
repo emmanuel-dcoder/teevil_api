@@ -112,6 +112,80 @@ export class ProposalService {
     }
   }
 
+  // fetch all clients proposals
+  async findAllProposalsForClients(
+    query: PaginationDto & { status?: string },
+    userId: string,
+  ) {
+    try {
+      const { search, page = 1, limit = 10, status } = query;
+      const skip = (page - 1) * limit;
+
+      // First, find all jobs created by the user
+      const jobsCreated = await this.jobModel
+        .find({ createdBy: new mongoose.Types.ObjectId(userId) })
+        .select('_id');
+
+      const jobIds = jobsCreated.map((job) => job._id);
+
+      if (!jobIds.length) {
+        return {
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+          data: [],
+        };
+      }
+      const filter: any = {
+        job: { $in: jobIds },
+      };
+
+      if (status) {
+        filter.status = status;
+      }
+
+      if (search) {
+        filter.$or = [
+          { title: { $regex: search, $options: 'i' } },
+          { body: { $regex: search, $options: 'i' } },
+          { status: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      const proposals = await this.proposalModel
+        .find(filter)
+        .populate({
+          path: 'job',
+          populate: {
+            path: 'createdBy',
+            select: 'firstName lastName profileImage email',
+          },
+        })
+        .populate({
+          path: 'submittedBy',
+          select: 'firstName lastName profileImage email',
+        })
+        .skip(skip)
+        .limit(limit);
+
+      const total = await this.proposalModel.countDocuments(filter);
+
+      return {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        data: proposals,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
   async findOne(id: string) {
     try {
       const proposal = await this.proposalModel
