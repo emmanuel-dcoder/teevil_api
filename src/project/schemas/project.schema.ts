@@ -27,7 +27,7 @@ export class Project {
     enum: ['pending', 'in-progress', 'review', 'completed'],
     default: 'in-progress',
   })
-  status: 'in-progress' | 'review' | 'completed' | 'pending';
+  status: 'in-progress' | 'review' | 'completed' | 'pending' | 'suspended';
 
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
   createdBy: mongoose.Types.ObjectId;

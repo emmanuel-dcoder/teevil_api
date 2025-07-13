@@ -144,7 +144,7 @@ export class ProjectService {
   }
 
   async findAll(
-    query: PaginationDto & { projectType: string },
+    query: PaginationDto & { projectType: string } & { status: string },
     userId: string,
   ) {
     try {
@@ -162,6 +162,10 @@ export class ProjectService {
       }
       if (query.projectType) {
         filter.projectType = query.projectType;
+      }
+
+      if (query.status) {
+        filter.status = query.status;
       }
       const projects = await this.projectModel
         .find(filter)

@@ -26,7 +26,7 @@ import { CreateInviteDto, CreateProjectDto } from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 
-@ApiTags('Freelancer Project')
+@ApiTags('Freelancer & Client Project')
 @ApiBearerAuth()
 @Controller('api/v1/project')
 export class ProjectController {
@@ -122,8 +122,16 @@ export class ProjectController {
     enum: ['shared', 'personal', 'contract', 'client'],
     description: 'Filter by project type',
   })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    enum: ['in-progress', 'review', 'completed', 'pending', 'suspended'],
+    description: 'Filter by project status',
+  })
   async findAll(
-    @Query() query: PaginationDto & { projectType: string },
+    @Query()
+    query: PaginationDto & { projectType: string } & { status: string },
     @Req() req: any,
   ) {
     const userId = req.user?._id;
