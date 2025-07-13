@@ -102,6 +102,13 @@ export class JobController {
     enum: ['10-50', '51-100', '101-500', '501-1000', 'above1000'],
     description: 'Filter by budget range',
   })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    enum: ['pending', 'review', 'approved', 'open', 'closed'],
+    description: 'Filter by status',
+  })
   @ApiResponse({ status: 200, description: 'Job list fetched' })
   @ApiResponse({ status: 400, description: 'Error fetching job list' })
   async findAll(@Query() query: JobPaginationDto, @Req() req: any) {

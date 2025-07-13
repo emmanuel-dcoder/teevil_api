@@ -65,6 +65,7 @@ export class JobService {
         limit = 10,
         jobType,
         priceModel,
+        status,
         budgetRange,
       } = query;
       const skip = (page - 1) * limit;
@@ -77,6 +78,10 @@ export class JobService {
 
       if (jobType && jobType !== 'all-types') {
         filter.jobType = jobType;
+      }
+
+      if (status) {
+        filter.status = status;
       }
 
       if (priceModel) {

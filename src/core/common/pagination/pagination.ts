@@ -46,5 +46,9 @@ export class JobPaginationDto {
 
   @IsOptional()
   @IsString()
+  status?: 'pending' | 'review' | 'approved' | 'closed' | 'open';
+
+  @IsOptional()
+  @IsString()
   budgetRange?: '10-50' | '51-100' | '101-500' | '501-1000' | 'above1000';
 }
