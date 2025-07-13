@@ -136,9 +136,9 @@ export class ProjectController {
   ) {
     const userId = req.user?._id;
     if (!userId) throw new UnauthorizedException('User not authenticated');
-    const { page, limit, search, projectType } = query;
+    const { page, limit, search, projectType, status } = query;
     const data = await this.projectService.findAll(
-      { page, limit, search, projectType },
+      { page, limit, search, projectType, status },
       userId,
     );
 
