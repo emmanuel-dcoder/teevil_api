@@ -198,10 +198,10 @@ export class UserService {
       }
 
       const userBio = await this.questionModel.findOne({
-        _id: new mongoose.Types.ObjectId(user._id),
+        user: new mongoose.Types.ObjectId(user._id),
       });
 
-      const bioDetails = userBio.bio ? userBio.bio : {};
+      const bio = userBio.bio ? userBio.bio : {};
       const token = generateAccessToken({
         _id: user._id,
         accountType: user.accountType,
@@ -215,7 +215,7 @@ export class UserService {
           lastName: user.lastName,
           accountType: user.accountType,
           profileImage: user.profileImage,
-          bio: bioDetails,
+          bio,
         },
         token,
       };
