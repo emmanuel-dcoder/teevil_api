@@ -54,6 +54,27 @@ export class Question {
   @Prop({ type: String })
   typeOfProject: string;
 
+  @Prop({ type: String })
+  clientProjectType: string;
+
+  @Prop({ type: String })
+  clientWorkPreference: string;
+
+  @Prop({ type: String })
+  clientBudget: string;
+
+  @Prop({ type: String })
+  clientJobType: string;
+
+  @Prop({ type: String })
+  numberOfStaff: string;
+
+  @Prop({ type: String })
+  sizeOfProject: string;
+
+  @Prop({ type: String })
+  jobType: string;
+
   @Prop({ type: Bio })
   bio: Bio;
 
