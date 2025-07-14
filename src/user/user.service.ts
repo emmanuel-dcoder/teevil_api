@@ -183,7 +183,7 @@ export class UserService {
     }
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto): Promise<any> {
     try {
       const user = await this.userModel.findOne({ email: dto.email });
 
@@ -196,6 +196,12 @@ export class UserService {
           'Unverified user, kindly verify your account',
         );
       }
+
+      const userBio = await this.questionModel.findOne({
+        _id: new mongoose.Types.ObjectId(user._id),
+      });
+
+      const bioDetails = userBio.bio ? userBio.bio : {};
       const token = generateAccessToken({
         _id: user._id,
         accountType: user.accountType,
@@ -208,6 +214,8 @@ export class UserService {
           firstName: user.firstName,
           lastName: user.lastName,
           accountType: user.accountType,
+          profileImage: user.profileImage,
+          bio: bioDetails,
         },
         token,
       };
