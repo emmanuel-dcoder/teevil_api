@@ -6,17 +6,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const whitelist = [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'https://your-frontend-domain.com',
-  ];
+  const whitelist = ['*'];
 
   app.enableCors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl)
-      if (!origin || whitelist.includes(origin)) {
+      if (!origin || whitelist.includes('*') || whitelist.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
