@@ -38,6 +38,7 @@ import {
   UpdateVisibleDto,
   VerifyOtpDto,
   ClientQuestionTypeListDto,
+  ClientQuestionDto,
 } from 'src/user/dto/create-user.dto';
 import {
   ClientAgencyQuestionTypeEnum,
@@ -373,7 +374,7 @@ export class ClientController {
     summary: 'Update Question',
     description: 'Updates or creates a client question entry.',
   })
-  @ApiBody({ type: QuestionDto })
+  @ApiBody({ type: ClientQuestionDto })
   @ApiResponse({ status: 200, description: 'Question updated successfully.' })
   @ApiResponse({ status: 400, description: 'Invalid data provided.' })
   async updateQuestion(@Param('id') user: string, @Body() dto: any) {

@@ -103,6 +103,84 @@ export class QuestionDto {
   typeOfProject: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientProjectType: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientWorkPreference: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientBudget: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientJobType: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  numberOfStaff: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  sizeOfProject: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  jobType: string;
+
+  @ApiPropertyOptional()
+  bio: string;
+
+  @ApiPropertyOptional()
+  title: string;
+}
+
+export class ClientQuestionDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientProjectType: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientWorkPreference: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientBudget: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  clientJobType: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  numberOfStaff: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  sizeOfProject: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  jobType: string;
+
+  @ApiPropertyOptional()
   bio: string;
 
   @ApiPropertyOptional()
