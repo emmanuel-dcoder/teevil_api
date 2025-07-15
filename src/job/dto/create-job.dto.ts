@@ -13,7 +13,7 @@ export class CreateJobDto {
   @ApiProperty({ example: ['first response', 'second response'] })
   @IsArray()
   @IsString({ each: true })
-  responsibities: string[];
+  responsibilities: string[];
 
   @ApiProperty({
     example: '2 years experience',
