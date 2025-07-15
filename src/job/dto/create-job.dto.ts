@@ -30,7 +30,7 @@ export class CreateJobDto {
   jobType: string;
 
   @ApiProperty({
-    example: 'all-type',
+    example: 'hourly',
     enum: ['hourly', 'daily', 'monthly', 'fixed'],
   })
   @IsString()
