@@ -23,7 +23,7 @@ export class CreateJobDto {
   experience: string;
 
   @ApiProperty({
-    example: 'all-type',
+    example: 'all-types',
     enum: ['full-time', 'part-time', 'contract', 'all-types'],
   })
   @IsString()
