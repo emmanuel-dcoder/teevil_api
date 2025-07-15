@@ -14,7 +14,11 @@ export class Job {
   @Prop({ required: true, type: [String] })
   responsibilities: string[];
 
-  @Prop({ required: true })
+  @Prop({
+    required: true,
+    enum: ['Entry Level', 'Mid Level', 'Senior Level', 'Intern'],
+    description: 'experience needed for the job',
+  })
   experience: string;
 
   @Prop({ required: true })
