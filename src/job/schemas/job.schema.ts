@@ -17,6 +17,9 @@ export class Job {
   @Prop({ required: true })
   experience: string;
 
+  @Prop({ required: true })
+  skill: string;
+
   @Prop({
     required: true,
     enum: ['full-time', 'part-time', 'contract', 'all-types'],
