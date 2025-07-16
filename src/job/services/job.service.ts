@@ -68,10 +68,16 @@ export class JobService {
         priceModel,
         status,
         budgetRange,
+        userId,
+        accountType,
       } = query;
       const skip = (page - 1) * limit;
 
       let filter: any = {};
+
+      if (accountType === 'client') {
+        filter.createdBy = userId;
+      }
 
       if (search) {
         filter.title = { $regex: search, $options: 'i' };

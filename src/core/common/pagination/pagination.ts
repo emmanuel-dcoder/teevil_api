@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, IsMongoId } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class PaginationDto {
@@ -51,4 +51,13 @@ export class JobPaginationDto {
   @IsOptional()
   @IsString()
   budgetRange?: '10-50' | '51-100' | '101-500' | '501-1000' | 'above1000';
+
+  @IsOptional()
+  @IsString()
+  accountType: 'client' | 'freelancer';
+
+  @IsOptional()
+  @IsString()
+  @IsMongoId()
+  userId: string;
 }

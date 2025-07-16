@@ -113,6 +113,7 @@ export class JobController {
   @ApiResponse({ status: 400, description: 'Error fetching job list' })
   async findAll(@Query() query: JobPaginationDto, @Req() req: any) {
     const userId = req.user?._id;
+    const accountType = req.user?.accountType;
     if (!userId) throw new UnauthorizedException('User not authenticated');
 
     const {
@@ -130,6 +131,8 @@ export class JobController {
       jobType,
       priceModel,
       budgetRange,
+      userId,
+      accountType,
     });
 
     return successResponse({
