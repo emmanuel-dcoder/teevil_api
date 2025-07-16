@@ -41,6 +41,7 @@ export class JobService {
 
       const job = await this.jobModel.create({
         ...payload,
+        status: payload.status === 'drafted' ? 'drafted' : 'open',
         createdBy: new mongoose.Types.ObjectId(createdBy),
       });
 

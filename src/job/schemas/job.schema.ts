@@ -39,10 +39,10 @@ export class Job {
 
   @Prop({
     type: String,
-    enum: ['pending', 'review', 'approved', 'open', 'closed'],
+    enum: ['pending', 'review', 'approved', 'open', 'closed', 'drafted'],
     default: 'open',
   })
-  status: 'pending' | 'review' | 'approved' | 'open' | 'closed';
+  status: 'pending' | 'review' | 'approved' | 'open' | 'closed' | 'drafted';
 
   @Prop({ type: Number, min: 0 })
   budget?: number;

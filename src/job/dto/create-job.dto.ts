@@ -43,13 +43,13 @@ export class CreateJobDto {
   @IsString()
   priceModel: string;
 
-  @ApiProperty({
-    example: 'review',
-    enum: ['pending', 'review', 'approved', 'open', 'closed'],
+  @ApiPropertyOptional({
+    example: 'drafted',
+    enum: ['pending', 'review', 'approved', 'open', 'closed', 'drafted'],
   })
   @IsOptional()
   @IsString()
-  status?: string;
+  status: string;
 
   @ApiProperty({ example: 67 })
   @IsOptional()

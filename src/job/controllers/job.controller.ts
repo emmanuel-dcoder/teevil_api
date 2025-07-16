@@ -106,7 +106,7 @@ export class JobController {
     name: 'status',
     required: false,
     type: String,
-    enum: ['pending', 'review', 'approved', 'open', 'closed'],
+    enum: ['pending', 'review', 'approved', 'open', 'closed', 'drafted'],
     description: 'Filter by status',
   })
   @ApiResponse({ status: 200, description: 'Job list fetched' })
