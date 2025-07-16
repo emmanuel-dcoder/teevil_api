@@ -117,7 +117,7 @@ export class JobController {
 
     const {
       page = 1,
-      limit = 10,
+      limit = 100000000,
       search,
       jobType,
       priceModel,
