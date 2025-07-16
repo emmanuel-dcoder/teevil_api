@@ -76,7 +76,7 @@ export class JobService {
       let filter: any = {};
 
       if (accountType === 'client') {
-        filter.createdBy = userId;
+        filter.createdBy = new mongoose.Types.ObjectId(userId);
       }
 
       if (search) {
