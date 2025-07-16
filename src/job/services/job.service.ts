@@ -63,7 +63,7 @@ export class JobService {
       const {
         search,
         page = 1,
-        limit = 10,
+        limit = 100000000,
         jobType,
         priceModel,
         status,
