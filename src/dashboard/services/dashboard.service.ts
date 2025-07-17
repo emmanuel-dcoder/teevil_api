@@ -4,7 +4,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
+import { Job } from 'src/job/schemas/job.schema';
 import { Project } from 'src/project/schemas/project.schema';
 import { Proposal } from 'src/proposal/schemas/proposal.schema';
 import { Transaction } from 'src/transaction/schemas/transaction.schema';
@@ -15,6 +16,7 @@ export class DashboardService {
     @InjectModel(Project.name) private projectModel: Model<Project>,
     @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
     @InjectModel(Proposal.name) private proposalModel: Model<Proposal>,
+    @InjectModel(Job.name) private jobModel: Model<Job>,
   ) {}
 
   /**freealncer dashbaord chart analysis */
@@ -192,6 +194,61 @@ export class DashboardService {
           totalWithdrawnAmount.length > 0
             ? totalWithdrawnAmount[0].totalAmount
             : 0,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  /**clients card ananlysis */
+  async clientsCards(req: any): Promise<any> {
+    try {
+      const userId = req?.user?._id;
+      if (!userId) throw new UnauthorizedException('Unauthorized');
+
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+
+      const [
+        totalJobs,
+        totalProposals,
+        totalActiveProject,
+        totalCompletedProjects,
+      ] = await Promise.all([
+        // Count Jobs created by user
+        this.jobModel.countDocuments({ createdBy: userObjectId }),
+
+        // Count Proposals for Jobs created by user
+        (async () => {
+          const jobsCreatedByUser = await this.jobModel.find(
+            { createdBy: userObjectId },
+            { _id: 1 },
+          );
+          const jobIds = jobsCreatedByUser.map((job) => job._id);
+
+          return this.proposalModel.countDocuments({ jobId: { $in: jobIds } });
+        })(),
+
+        // Count Active Projects
+        this.projectModel.countDocuments({
+          $or: [{ createdBy: userObjectId }, { usersAdded: userObjectId }],
+          status: 'in-progress',
+        }),
+
+        // Count Completed Projects
+        this.projectModel.countDocuments({
+          $or: [{ createdBy: userObjectId }, { usersAdded: userObjectId }],
+          status: 'completed',
+        }),
+      ]);
+
+      return {
+        totalJobs,
+        totalProposals,
+        totalActiveProject,
+        totalCompletedProjects,
       };
     } catch (error) {
       throw new HttpException(

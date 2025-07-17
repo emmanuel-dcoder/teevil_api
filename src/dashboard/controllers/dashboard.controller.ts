@@ -44,12 +44,28 @@ export class DashboardController {
     });
   }
 
+  /**freelancer cards */
   @Get('/freelancer-cards')
   @ApiOperation({ summary: 'Freelancer Dashboard card analysis' })
   @ApiResponse({ status: 200, description: 'Dashboard card data retrieved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async freelancerCardData(@Req() req: any) {
     const data = await this.dashboardService.freelanncersCards(req);
+    return successResponse({
+      message: 'Dashboard card data retrieved',
+      code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  /**Clients cards */
+  @Get('/clients-cards')
+  @ApiOperation({ summary: 'Clients Dashboard card analysis' })
+  @ApiResponse({ status: 200, description: 'Dashboard card data retrieved' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async clientCardData(@Req() req: any) {
+    const data = await this.dashboardService.clientsCards(req);
     return successResponse({
       message: 'Dashboard card data retrieved',
       code: HttpStatus.OK,

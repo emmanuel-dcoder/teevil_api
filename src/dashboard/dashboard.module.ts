@@ -19,6 +19,8 @@ import {
   TransactionSchema,
 } from 'src/transaction/schemas/transaction.schema';
 import { Proposal, ProposalSchema } from 'src/proposal/schemas/proposal.schema';
+import { Job, JobSchema } from 'src/job/schemas/job.schema';
+import { JobService } from 'src/job/services/job.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -29,6 +31,7 @@ import { Proposal, ProposalSchema } from 'src/proposal/schemas/proposal.schema';
       { name: Notification.name, schema: NotificationSchema },
       { name: Transaction.name, schema: TransactionSchema },
       { name: Proposal.name, schema: ProposalSchema },
+      { name: Job.name, schema: JobSchema },
     ]),
   ],
   controllers: [DashboardController],
@@ -37,6 +40,7 @@ import { Proposal, ProposalSchema } from 'src/proposal/schemas/proposal.schema';
     DashboardService,
     NotificationService,
     MailService,
+    JobService,
   ],
 })
 export class DashboardModule implements NestModule {
