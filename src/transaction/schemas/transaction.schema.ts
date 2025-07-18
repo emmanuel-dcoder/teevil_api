@@ -32,6 +32,9 @@ export class Transaction {
   @Prop({ required: true })
   channel: string;
 
+  @Prop({ required: true, default: 'escrow-funded' })
+  method: string;
+
   @Prop({ required: true })
   transactionId: string;
 
