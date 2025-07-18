@@ -6,11 +6,13 @@ import { Transaction, TransactionSchema } from './schemas/transaction.schema';
 import { TransactionService } from './services/transaction.service';
 
 import { StripePaymentIntentService } from 'src/provider/stripe/stripe-payment-intent.service';
+import { Project, ProjectSchema } from 'src/project/schemas/project.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Transaction.name, schema: TransactionSchema },
+      { name: Project.name, schema: ProjectSchema },
     ]),
   ],
   controllers: [TransactionController],

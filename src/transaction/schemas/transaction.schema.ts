@@ -21,13 +21,13 @@ export class Transaction {
     default: 'pending',
     enum: ['pending', 'confirmed', 'failed', 'in-reveiew'],
   })
-  status: 'pending' | 'confirm' | 'failed' | 'in-review';
+  status: 'pending' | 'confirmed' | 'failed' | 'in-review';
 
   @Prop({
-    default: 'pending',
-    enum: ['pending', 'confirmed', 'failed', 'in-reveiew'],
+    default: 'processing',
+    enum: ['processing', 'paid', 'rejected', 'in-reveiew'],
   })
-  payoutStatus: 'pending' | 'confirm' | 'failed' | 'in-review';
+  payoutStatus: 'processing' | 'paid' | 'rejected' | 'in-review';
 
   @Prop({ required: true })
   channel: string;

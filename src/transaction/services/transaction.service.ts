@@ -6,17 +6,27 @@ import { StripePaymentIntentService } from 'src/provider/stripe/stripe-payment-i
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import Stripe from 'stripe';
+import { Project } from 'src/project/schemas/project.schema';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
+    @InjectModel(Project.name) private projectModel: Model<Project>,
     private readonly stripeService: StripePaymentIntentService,
   ) {}
 
   async initiatePayment(payload: CreateTransactionDto & { client: string }) {
     try {
       const { freelancer, client, project, amount } = payload;
+
+      //check if project exist
+      const verifyProject = await this.projectModel.findOne({
+        _id: new mongoose.Types.ObjectId(project),
+        createdBy: new mongoose.Types.ObjectId(client),
+      });
+
+      if (!verifyProject) throw new BadRequestException('Invalid product id');
 
       const stripePayment =
         await this.stripeService.createPaymentIntent(amount);
@@ -103,30 +113,30 @@ export class TransactionService {
   }
 
   async findAll(
-    query: PaginationDto & { status?: string; search?: string },
+    query: PaginationDto & { payoutStatus?: string; search?: string },
     userId: string,
   ) {
     try {
-      const { search, page = 1, limit = 10, status } = query;
+      const { search, page = 1, limit = 10, payoutStatus } = query;
       const skip = (page - 1) * limit;
 
       const filter: any = {
         $or: [{ client: userId }, { freelancer: userId }],
       };
 
-      if (status) {
-        filter.status = status;
+      if (payoutStatus) {
+        filter.payoutStatus = payoutStatus;
       }
 
       if (search) {
         filter.$or.push(
           { paymentType: { $regex: search, $options: 'i' } },
-          { status: { $regex: search, $options: 'i' } },
+          { payoutStatus: { $regex: search, $options: 'i' } },
         );
       }
 
       const transactions = await this.transactionModel
-        .find(filter)
+        .find({ ...filter, status: 'confirmed' })
         .populate({
           path: 'client',
           model: 'User',

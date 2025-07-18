@@ -83,13 +83,13 @@ export class TransactionController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiQuery({
-    name: 'status',
+    name: 'payoutStatus',
     required: false,
     type: String,
-    enum: ['pending', 'confirmed', 'failed', 'in-reveiew'],
+    enum: ['processing', 'paid'],
   })
   async findAll(
-    @Query() query: PaginationDto & { status?: string },
+    @Query() query: PaginationDto & { payoutStatus?: string },
     @Req() req: any,
   ) {
     const userId = req.user?._id;
