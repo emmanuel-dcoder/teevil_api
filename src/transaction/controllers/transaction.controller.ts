@@ -93,8 +93,13 @@ export class TransactionController {
     @Req() req: any,
   ) {
     const userId = req.user?._id;
+    const accountType = req.user?.accountType;
     if (!userId) throw new UnauthorizedException('User not authenticated');
-    const data = await this.transactionService.findAll(query, userId);
+    const data = await this.transactionService.findAll(
+      query,
+      userId,
+      accountType,
+    );
     return successResponse({
       message: 'Transaction lists',
       code: 200,

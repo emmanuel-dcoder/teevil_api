@@ -115,14 +115,18 @@ export class TransactionService {
   async findAll(
     query: PaginationDto & { payoutStatus?: string; search?: string },
     userId: string,
+    accountType: string,
   ) {
     try {
       const { search, page = 1, limit = 10, payoutStatus } = query;
       const skip = (page - 1) * limit;
 
-      const filter: any = {
-        $or: [{ client: userId }, { freelancer: userId }],
-      };
+      const filter: any = {};
+
+      if (accountType === 'client')
+        filter.client = new mongoose.Types.ObjectId(userId);
+      if (accountType === 'freelancer')
+        filter.client = new mongoose.Types.ObjectId(userId);
 
       if (payoutStatus) {
         filter.payoutStatus = payoutStatus;
@@ -135,8 +139,10 @@ export class TransactionService {
         );
       }
 
+      console.log(filter);
+
       const transactions = await this.transactionModel
-        .find({ ...filter, status: 'confirmed' })
+        .find(filter)
         .populate({
           path: 'client',
           model: 'User',
