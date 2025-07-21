@@ -175,6 +175,11 @@ export class ProjectService {
           model: 'User',
           select: 'firstName lastName profileImage email',
         })
+        .populate({
+          path: 'usersAdded',
+          model: 'User',
+          select: 'firstName lastName profileImage email',
+        })
         .skip(skip)
         .limit(limit);
 
