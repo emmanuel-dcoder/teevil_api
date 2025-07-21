@@ -201,7 +201,7 @@ export class UserService {
         user: new mongoose.Types.ObjectId(user._id),
       });
 
-      const bio = userBio.bio ? userBio.bio : {};
+      const bio = userBio ? userBio.bio : {};
       const token = generateAccessToken({
         _id: user._id,
         accountType: user.accountType,

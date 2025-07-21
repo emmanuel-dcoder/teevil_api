@@ -15,7 +15,7 @@ export class MailService {
     this.mailTransport = nodemailer.createTransport({
       host: config.mail.host,
       port: parseInt(config.mail.port, 10),
-      secure: true, 
+      secure: true,
       requireTLS: true,
       auth: {
         user: config.mail.user,
@@ -64,11 +64,7 @@ export class MailService {
     options?: { from?: string; cc?: string; bcc?: string },
   ): Promise<void> {
     try {
-      const {
-        from = '"Unistore" <support@bhustore.ng>',
-        cc,
-        bcc,
-      } = options || {};
+      const { from = '"Teevil" <support@teevil.com>', cc, bcc } = options || {};
       const templateSource = await this.getTemplate(templateName);
       const compiledTemplate = handlebars.compile(templateSource);
 
