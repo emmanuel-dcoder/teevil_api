@@ -197,6 +197,7 @@ export class UserService {
         );
       }
 
+      //get bio
       const userBio = await this.questionModel.findOne({
         user: new mongoose.Types.ObjectId(user._id),
       });
