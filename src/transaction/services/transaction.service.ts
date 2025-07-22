@@ -26,7 +26,7 @@ export class TransactionService {
         createdBy: new mongoose.Types.ObjectId(client),
       });
 
-      if (!verifyProject) throw new BadRequestException('Invalid product id');
+      if (!verifyProject) throw new BadRequestException('Invalid project id');
 
       const stripePayment =
         await this.stripeService.createPaymentIntent(amount);
