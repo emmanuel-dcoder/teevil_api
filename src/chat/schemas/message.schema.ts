@@ -18,4 +18,4 @@ export class Message {
   recipient: mongoose.Types.ObjectId;
 }
 
-export const ChatSchema = SchemaFactory.createForClass(Message);
+export const MessageSchema = SchemaFactory.createForClass(Message);

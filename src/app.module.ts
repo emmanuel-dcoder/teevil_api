@@ -13,6 +13,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { WithdrawalModule } from './withdrawal/withdrawal.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ClientModule } from './client/client.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ClientModule } from './client/client.module';
     WithdrawalModule,
     DashboardModule,
     ClientModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
