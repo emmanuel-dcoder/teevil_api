@@ -53,6 +53,8 @@ export class ChatService {
 
     if (chat) return chat;
   }
+
+  //find chat
   async findChat(senderId: string, recipientId: string) {
     const existingChat = await this.chatModel.findOne(
       {
@@ -78,6 +80,7 @@ export class ChatService {
       };
   }
 
+  //find all chat
   async findAllChat(participantId: string) {
     const chat = await this.chatModel
       .find(
