@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { VerifyTokenMiddleware } from 'src/core/common/middlewares';
 import { TransactionController } from './controllers/transaction.controller';
@@ -20,6 +25,19 @@ import { Project, ProjectSchema } from 'src/project/schemas/project.schema';
 })
 export class TransactionModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(VerifyTokenMiddleware).forRoutes(TransactionController);
+    consumer.apply(VerifyTokenMiddleware).forRoutes(
+      {
+        path: 'api/v1/transaction/initiate',
+        method: RequestMethod.POST,
+      },
+      {
+        path: 'api/v1/transaction/verify/:paymentIntentId',
+        method: RequestMethod.GET,
+      },
+      {
+        path: 'api/v1/transaction',
+        method: RequestMethod.GET,
+      },
+    );
   }
 }

@@ -25,10 +25,10 @@ import { successResponse } from 'src/config/response';
 
 @ApiTags('Transaction and Payment history')
 @Controller('api/v1/transaction')
-@ApiBearerAuth()
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
+  @ApiBearerAuth()
   @Post('initiate')
   @ApiOperation({ summary: 'Initiate a Stripe Payment' })
   @ApiBody({ type: CreateTransactionDto })
@@ -50,6 +50,7 @@ export class TransactionController {
     });
   }
 
+  @ApiBearerAuth()
   @Get('verify/:paymentIntentId')
   @ApiOperation({ summary: 'Verify Stripe Payment by PaymentIntent ID' })
   async verify(@Param('paymentIntentId') paymentIntentId: string) {
@@ -74,6 +75,7 @@ export class TransactionController {
     return result;
   }
 
+  @ApiBearerAuth()
   @Get()
   @ApiOperation({
     summary:
