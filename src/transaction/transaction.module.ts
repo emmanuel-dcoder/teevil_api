@@ -38,6 +38,10 @@ export class TransactionModule implements NestModule {
         path: 'api/v1/transaction',
         method: RequestMethod.GET,
       },
+      {
+        path: 'api/v1/transaction/escrow',
+        method: RequestMethod.GET,
+      },
     );
   }
 }

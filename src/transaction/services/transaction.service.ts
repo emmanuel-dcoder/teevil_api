@@ -139,8 +139,6 @@ export class TransactionService {
         );
       }
 
-      console.log(filter);
-
       const transactions = await this.transactionModel
         .find(filter)
         .populate({
@@ -166,6 +164,34 @@ export class TransactionService {
         totalPages: Math.ceil(total / limit),
         data: transactions,
       };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  //get escrow or pendng payment for client
+  async totalEscrow(userId: string): Promise<{ escrowBalance: number }> {
+    try {
+      const result = await this.transactionModel.aggregate([
+        {
+          $match: {
+            client: new mongoose.Types.ObjectId(userId),
+            payoutStatus: 'processing',
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: '$amount' },
+          },
+        },
+      ]);
+
+      const escrowBalance = result[0]?.total || 0;
+      return { escrowBalance };
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

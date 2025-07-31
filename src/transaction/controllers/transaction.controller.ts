@@ -98,6 +98,26 @@ export class TransactionController {
     });
   }
 
+  //get total escrow balance for cleint
+  @ApiBearerAuth()
+  @Get('escrow')
+  @ApiOperation({
+    summary: 'Get total balance for clients escrow',
+  })
+  async totalEscrow(@Req() req: any) {
+    const userId = req.user?._id;
+    const accountType = req.user?.accountType;
+    if (!userId && accountType !== 'client')
+      throw new UnauthorizedException('Only client can access this route');
+    const data = await this.transactionService.totalEscrow(userId);
+    return successResponse({
+      message: 'Escrow balence fetched',
+      code: 200,
+      status: 'success',
+      data,
+    });
+  }
+
   @Post('stripe-webhook')
   async handleStripeWebhook(
     @Req() req: RawBodyRequest<Request>,
