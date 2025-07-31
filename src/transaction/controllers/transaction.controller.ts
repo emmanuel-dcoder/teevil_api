@@ -98,6 +98,18 @@ export class TransactionController {
     });
   }
 
+  @Post('stripe-webhook')
+  async handleStripeWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('stripe-signature') signature: string,
+  ) {
+    const result = await this.transactionService.stripeWebhook(
+      req.rawBody,
+      signature,
+    );
+    return result;
+  }
+
   //get total escrow balance for cleint
   @ApiBearerAuth()
   @Get('escrow')
@@ -116,17 +128,5 @@ export class TransactionController {
       status: 'success',
       data,
     });
-  }
-
-  @Post('stripe-webhook')
-  async handleStripeWebhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Headers('stripe-signature') signature: string,
-  ) {
-    const result = await this.transactionService.stripeWebhook(
-      req.rawBody,
-      signature,
-    );
-    return result;
   }
 }
