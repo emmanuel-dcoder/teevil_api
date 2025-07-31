@@ -63,18 +63,6 @@ export class TransactionController {
     });
   }
 
-  @Post('stripe-webhook')
-  async handleStripeWebhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Headers('stripe-signature') signature: string,
-  ) {
-    const result = await this.transactionService.stripeWebhook(
-      req.rawBody,
-      signature,
-    );
-    return result;
-  }
-
   @ApiBearerAuth()
   @Get()
   @ApiOperation({
@@ -108,5 +96,17 @@ export class TransactionController {
       status: 'success',
       data,
     });
+  }
+
+  @Post('stripe-webhook')
+  async handleStripeWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('stripe-signature') signature: string,
+  ) {
+    const result = await this.transactionService.stripeWebhook(
+      req.rawBody,
+      signature,
+    );
+    return result;
   }
 }
