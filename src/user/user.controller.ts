@@ -99,7 +99,7 @@ export class UserController {
     status: 200,
     description: 'Login successful. Returns JWT token.',
   })
-  @ApiResponse({ status: 400, description: 'Invalid email or password.' })
+  @ApiResponse({ status: 400, description: 'Something went wrong' })
   async login(@Body() dto: LoginDto) {
     //data
     const data = await this.userService.login(dto);

@@ -67,9 +67,9 @@ export class ProjectService {
       await project.save();
 
       await this.notificationService.create({
-        title: 'Section Created',
-        content: `You section with title: ${title} has been created`,
-        notificationType: 'Section',
+        title: 'Project',
+        content: `You project with title: ${title} has been created`,
+        notificationType: 'Project',
         userType: 'user',
         user: createdBy.toString(),
       });

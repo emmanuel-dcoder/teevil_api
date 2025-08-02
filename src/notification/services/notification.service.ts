@@ -36,7 +36,7 @@ export class NotificationService {
       const skip = (page - 1) * limit;
 
       const filter: any = {
-        user: new mongoose.Types.ObjectId(userId),
+        user: userId,
       };
 
       if (search) {
@@ -46,6 +46,7 @@ export class NotificationService {
         ];
       }
 
+      console.log('filter', filter);
       const notifications = await this.notificationModel
         .find(filter)
         .skip(skip)
