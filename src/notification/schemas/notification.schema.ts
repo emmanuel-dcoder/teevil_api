@@ -14,7 +14,7 @@ export class Notification {
   @Prop({ required: false })
   projectId: string;
 
-  @Prop({ required: true, enum: ['job', 'project'] })
+  @Prop({ required: false })
   notificationtType: string;
 
   @Prop({ type: Boolean, default: false })

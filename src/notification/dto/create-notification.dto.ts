@@ -24,7 +24,7 @@ export class CreeateNotificationDto {
     description: 'type of notification can be job or project',
   })
   @IsString()
-  notificationType: string;
+  notificationType?: string;
 
   @ApiProperty({
     example: 'user',

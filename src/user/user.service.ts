@@ -35,7 +35,6 @@ import { Invite } from 'src/project/schemas/invite.schema';
 import { NotificationService } from 'src/notification/services/notification.service';
 import { InviteWithProject } from 'src/project/enumAndTypes/project.enum';
 import { UpdateUserDto } from './dto/update-user.dto';
-
 @Injectable()
 export class UserService {
   constructor(
@@ -125,6 +124,14 @@ export class UserService {
       }
 
       delete createUser.password;
+
+      await this.notificationService.create({
+        title: 'Welcome 🤝',
+        content: `Congratulations!!! you are now a register user on Teevil`,
+        notificationType: 'Registration',
+        userType: 'user',
+        user: createUser._id.toString(),
+      });
 
       return createUser;
     } catch (error) {

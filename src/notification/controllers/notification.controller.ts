@@ -47,7 +47,7 @@ export class NotificationController {
       user: userId,
     });
     return successResponse({
-      message: 'notification created successfully',
+      message: 'Notification created successfully',
       code: HttpStatus.CREATED,
       status: 'success',
       data,
@@ -104,7 +104,7 @@ export class NotificationController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a notification by ID' })
+  @ApiOperation({ summary: 'Get a notification by ID of the user' })
   @ApiResponse({
     status: 200,
     description: 'Notification retrieved successfully',
