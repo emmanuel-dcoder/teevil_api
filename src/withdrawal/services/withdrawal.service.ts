@@ -8,12 +8,14 @@ import { User } from 'src/user/schemas/user.schema';
 import { WithdrawalStatus } from '../enum/withdrawal.enum';
 import { AlphaNumeric } from 'src/core/common/utils/authentication';
 import { MailService } from 'src/core/mail/email';
+import { NotificationService } from 'src/notification/services/notification.service';
 
 @Injectable()
 export class WithdrawalService {
   constructor(
     @InjectModel(Withdrawal.name) private withdrawalModel: Model<Withdrawal>,
     @InjectModel(User.name) private userModel: Model<User>,
+    private readonly notificationService: NotificationService,
     private readonly mailService: MailService,
   ) {}
 
@@ -66,6 +68,13 @@ export class WithdrawalService {
           { name: freelancer.firstName, amount: payload.amount },
           'withrawalRequest',
         );
+        await this.notificationService.create({
+          title: 'Withdrawal ',
+          content: `Congratulations!!! your withdrawal request for ${payload.amount} is processing `,
+          notificationType: 'Withdrawal',
+          userType: 'user',
+          user: freelancerId.toString(),
+        });
       } catch (error) {
         console.log('mail error', error);
       }
