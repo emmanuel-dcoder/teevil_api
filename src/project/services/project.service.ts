@@ -66,6 +66,14 @@ export class ProjectService {
       project.sections = sectionIds;
       await project.save();
 
+      await this.notificationService.create({
+        title: 'Section Created',
+        content: `You section with title: ${title} has been created`,
+        notificationType: 'Section',
+        userType: 'user',
+        user: createdBy.toString(),
+      });
+
       return project;
     } catch (error) {
       throw new HttpException(
@@ -112,6 +120,14 @@ export class ProjectService {
             },
             'project_invite',
           );
+
+          await this.notificationService.create({
+            title: 'Invite',
+            content: `Your invite to email: ${email} has been sent`,
+            notificationType: 'Invite',
+            userType: 'user',
+            user: userId.toString(),
+          });
 
           return;
         }

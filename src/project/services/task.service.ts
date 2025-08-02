@@ -11,13 +11,17 @@ import { CreateTaskDto, UpdateSubTaskDto } from '../dto/create-project.dto';
 import { UpdateTaskDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { SubTask, Task } from '../schemas/task.schema';
+import { NotificationService } from 'src/notification/services/notification.service';
+import { Project } from '../schemas/project.schema';
 
 @Injectable()
 export class TaskService {
   constructor(
     @InjectModel(Task.name) private taskModel: Model<Task>,
     @InjectModel(SubTask.name) private subTaskModel: Model<SubTask>,
+    @InjectModel(Project.name) private projectModel: Model<Project>,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(
@@ -32,6 +36,13 @@ export class TaskService {
       if (files) {
         taskImage = await this.uploadImages(files);
       }
+
+      //verify project
+      const validateProject = await this.projectModel.findOne({
+        _id: new mongoose.Types.ObjectId(project),
+      });
+
+      if (!validateProject) throw new BadRequestException('Invalid project id');
 
       let subTaskIds: mongoose.Types.ObjectId[] = [];
 
@@ -55,6 +66,14 @@ export class TaskService {
         assignedTo: assignedUserIds,
         description: { content, image: taskImage ?? [] },
         subTasks: subTaskIds,
+      });
+
+      await this.notificationService.create({
+        title: 'Task Created',
+        content: `You just created a task for project: ${validateProject.title}`,
+        notificationType: 'Task',
+        userType: 'user',
+        user: validateProject.createdBy.toString(),
       });
 
       return task;
