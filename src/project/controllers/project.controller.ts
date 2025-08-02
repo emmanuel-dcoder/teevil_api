@@ -32,6 +32,32 @@ import { PaginationDto } from 'src/core/common/pagination/pagination';
 export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
+  @Post('create')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBody({ type: CreateProjectDto })
+  @ApiOperation({ summary: 'Create a new project' })
+  @ApiResponse({ status: 201, description: 'Project created successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  async createProject(
+    @Req() req: any,
+    @Body() createProjectDto: CreateProjectDto,
+  ) {
+    const userId = req.user?._id;
+    if (!userId) throw new UnauthorizedException('User not authenticated');
+
+    const data = await this.projectService.createProject({
+      ...createProjectDto,
+      createdBy: userId,
+    });
+
+    return successResponse({
+      message: 'Project created successfully',
+      code: HttpStatus.CREATED,
+      status: 'success',
+      data,
+    });
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: CreateProjectDto })
