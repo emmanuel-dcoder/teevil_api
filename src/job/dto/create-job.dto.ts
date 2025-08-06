@@ -18,7 +18,7 @@ export class CreateJobDto {
   @ApiProperty({
     example: '2 years experience',
     enum: ['Entry Level', 'Mid Level', 'Senior Level', 'Intern'],
-    description: 'experience needed for the job',
+    description: 'Entry Level',
   })
   @IsString()
   experience: string;
