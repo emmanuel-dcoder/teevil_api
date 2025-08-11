@@ -9,6 +9,7 @@ import {
   Get,
   Query,
   Param,
+  Put,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -20,7 +21,10 @@ import {
 } from '@nestjs/swagger';
 import { successResponse } from 'src/config/response';
 import { ProposalService } from '../services/proposal.service';
-import { CreateProposalDto } from '../dto/create-proposal.dto';
+import {
+  CreateProposalDto,
+  ProposalStatusDto,
+} from '../dto/create-proposal.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 
 @ApiTags('Freelancer & Client Proposal')
@@ -175,6 +179,30 @@ export class ProposalController {
     return successResponse({
       message: 'Proposal retrieved successfully',
       code: HttpStatus.OK,
+      status: 'success',
+      data,
+    });
+  }
+
+  @Put()
+  @ApiBody({ type: ProposalStatusDto })
+  @ApiOperation({ summary: 'Update proposal status' })
+  @ApiResponse({ status: 201, description: 'Proposal Status updated' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  async proposalStatus(
+    @Req() req: any,
+    @Body() proposalStatusDto: 'accepted' | 'rejected',
+  ) {
+    const userId = req.user?._id;
+    if (!userId) throw new UnauthorizedException('User not authenticated');
+
+    const data = await this.proposalService.updateProposal(
+      proposalStatusDto,
+      userId,
+    );
+    return successResponse({
+      message: 'Proposal Status updated',
+      code: HttpStatus.ACCEPTED,
       status: 'success',
       data,
     });

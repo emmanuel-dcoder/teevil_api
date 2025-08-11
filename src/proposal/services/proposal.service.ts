@@ -10,12 +10,15 @@ import { Proposal } from '../schemas/proposal.schema';
 import { CreateProposalDto } from '../dto/create-proposal.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { Job } from 'src/job/schemas/job.schema';
+import { MailService } from 'src/core/mail/email';
+import { UserDocument } from '../../user/schemas/user.schema';
 
 @Injectable()
 export class ProposalService {
   constructor(
     @InjectModel(Proposal.name) private proposalModel: Model<Proposal>,
     @InjectModel(Job.name) private jobModel: Model<Job>,
+    private readonly mailService: MailService,
   ) {}
 
   async createPropsosal(payload: CreateProposalDto & { submittedBy: string }) {
@@ -204,6 +207,52 @@ export class ProposalService {
 
       if (!proposal) throw new NotFoundException('Proposal not found');
       return proposal;
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? error?.statusCode ?? 500,
+      );
+    }
+  }
+
+  //update proposal status
+  async updateProposal(status: 'accepted' | 'rejected', userId: string) {
+    try {
+      if (!status) throw new BadRequestException('Status cannot be empty');
+
+      const verifyProposal = await this.proposalModel
+        .findOne({
+          submittedBy: new mongoose.Types.ObjectId(userId),
+        })
+        .populate({
+          path: 'submittedBy',
+          model: 'User',
+          select: 'firstName lastName email profileImage',
+        });
+
+      if (!verifyProposal)
+        throw new BadRequestException('Unauthorized to update');
+
+      verifyProposal.status = status;
+      await verifyProposal.save();
+
+      try {
+        const submittedUser =
+          verifyProposal.submittedBy as unknown as UserDocument;
+        const email = submittedUser.email;
+        await this.mailService.sendMailNotification(
+          email,
+          'Teevil: Proposal Update',
+          {
+            name: 'Proposal Status',
+            status,
+            title: verifyProposal.title,
+          },
+          'proposal_status',
+        );
+      } catch (error) {
+        console.log('mail notification error');
+      }
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,

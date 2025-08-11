@@ -35,3 +35,13 @@ export class CreateProposalDto {
   @IsMongoId()
   job: string;
 }
+
+export class ProposalStatusDto {
+  @ApiProperty({
+    example: 'accepted',
+    description: 'update propsal status e.g accepted or rejected',
+    enum: ['accepted', 'rejected'],
+  })
+  @IsString()
+  status: string;
+}

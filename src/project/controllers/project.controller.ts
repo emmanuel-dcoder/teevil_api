@@ -109,7 +109,6 @@ export class ProjectController {
     const userId = req.user?._id;
     if (!userId) throw new UnauthorizedException('User not authenticated');
     await this.projectService.createInvite(createInviteDto, userId);
-
     return successResponse({
       message: 'Invite sent',
       code: HttpStatus.CREATED,
