@@ -99,9 +99,9 @@ export class CreateTaskDto {
     example: '613b6c3a5b41a2f123456789',
     description: 'Section ID',
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsMongoId()
-  section?: string;
+  section: string;
 
   @ApiProperty({
     example: ['613b6c3a5b41a2f123456789'],
