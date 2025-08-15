@@ -90,25 +90,59 @@ export class TransactionService {
 
   async stripeWebhook(payload: Buffer, signature: string) {
     try {
+      // Verify the event signature
       const event = this.stripeService.constructWebhookEvent(
         payload,
         signature,
       );
 
       switch (event.type) {
-        case 'payment_intent.succeeded':
-        case 'payment_intent.payment_failed':
+        case 'payment_intent.succeeded': {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
-          await this.verifyPayment(paymentIntent.id);
+
+          try {
+            await this.transactionModel.findOneAndUpdate(
+              { transactionId: paymentIntent.id },
+              { status: 'paid' }, // Directly set to paid
+              { new: true },
+            );
+          } catch (err) {
+            console.error(
+              `Error updating transaction to paid for ${paymentIntent.id}:`,
+              err.message,
+            );
+          }
           break;
+        }
+
+        case 'payment_intent.payment_failed': {
+          const paymentIntent = event.data.object as Stripe.PaymentIntent;
+
+          try {
+            await this.transactionModel.findOneAndUpdate(
+              { transactionId: paymentIntent.id },
+              { status: 'failed' },
+              { new: true },
+            );
+          } catch (err) {
+            console.error(
+              `Error updating transaction to failed for ${paymentIntent.id}:`,
+              err.message,
+            );
+          }
+          break;
+        }
+
+        default:
+          console.log(`Unhandled event type: ${event.type}`);
       }
 
+      // Always return OK for valid signatures
       return { received: true };
     } catch (error) {
-      throw new HttpException(
-        error?.response?.message ?? error?.message,
-        error?.status ?? 500,
-      );
+      // Only fail on invalid signatures
+      console.error('Stripe signature verification failed:', error.message);
+      throw new HttpException('Invalid Stripe Webhook Signature', 400);
     }
   }
 

@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './core/common/filters/all-exceptions.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +19,11 @@ async function bootstrap() {
     },
     credentials: true,
   });
+
+  app.use(
+    '/api/v1/transaction/stripe-webhook',
+    bodyParser.raw({ type: 'application/json' }),
+  );
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
