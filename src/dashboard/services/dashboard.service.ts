@@ -185,7 +185,7 @@ export class DashboardService {
       return {
         totalProjects,
         totalCompletedProjects,
-        totalProposals,
+        totalAppliedJobs: totalProposals,
         totalEarnings:
           totalEarnings.length > 0 ? totalEarnings[0].totalAmount : 0,
         availableBalance:
