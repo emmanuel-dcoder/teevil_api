@@ -9,5 +9,5 @@ export class SendMessageDto {
 
   @IsString()
   @Length(1, 500)
-  content: string;
+  message: string;
 }

@@ -14,14 +14,14 @@ export class ChatService {
   async sendMessage(data: {
     sender: string;
     recipient: string;
-    content: string;
+    message: string;
     chatId: any;
   }) {
     const message = await this.messageModel.create({
       ...data,
       sender: new mongoose.Types.ObjectId(data.sender),
       recipient: new mongoose.Types.ObjectId(data.recipient),
-      content: data.content,
+      message: data.message,
       chat: new mongoose.Types.ObjectId(data.chatId),
     });
 

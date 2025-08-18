@@ -37,9 +37,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('sendMessage')
   async handleMessage(client: Socket, @MessageBody() payload: SendMessageDto) {
-    const { sender, recipient, content } = payload;
+    const { sender, recipient, message } = payload;
 
-    if (!sender || !recipient || content) {
+    console.log('payload', payload);
+    if (payload.sender || payload.recipient || payload.message)
+      console.log('this is showing payload');
+
+    if (!sender || !recipient || !message) {
       return await this.server.emit(
         `${recipient}`,
         'sender, recipient, content are required',
@@ -55,14 +59,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     let chatId = chat._id;
 
-    const message = await this.chatService.sendMessage({
+    const sendMessage = await this.chatService.sendMessage({
       sender,
       recipient,
-      content,
+      message,
       chatId,
     });
 
-    if (recipient) return await await this.server.emit(`${recipient}`, message);
+    if (recipient)
+      return await await this.server.emit(`${recipient}`, sendMessage);
   }
 
   @SubscribeMessage('getMessge')

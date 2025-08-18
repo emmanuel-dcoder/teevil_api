@@ -19,7 +19,7 @@ export class ChatController {
    - **Payload**:
      - \`sender\`: ID of the sender, may be client or freelancer
      - \`receiver\`: ID of the receiver, may be client or reciever
-     - \`content\`: Text content of the chat
+     - \`message\`: Text content/message of the chat
    - **Listen**: \`receiver id\` for real-time updates.
 
 2. **Chat History with a user**:
@@ -40,16 +40,16 @@ export class ChatController {
     payload: {
       sender: string;
       recipient: string;
-      content: string;
+      message: string;
     },
   ) {
-    const { sender, recipient, content } = payload;
+    const { sender, recipient, message } = payload;
     const data = await this.chatService.createChat(sender, recipient);
 
     await this.chatService.sendMessage({
       sender,
       recipient,
-      content,
+      message,
       chatId: data,
     });
 
