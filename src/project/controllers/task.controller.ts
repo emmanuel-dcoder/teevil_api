@@ -132,10 +132,17 @@ export class TaskController {
   })
   @ApiQuery({
     name: 'sectionId',
-    required: true,
+    required: false,
     type: String,
     example: '669a6197c3e587bd6e4a63ef',
     description: 'ID of section',
+  })
+  @ApiQuery({
+    name: 'taskId',
+    required: false,
+    type: String,
+    example: '669a6197c3e587bd6e4a63ef',
+    description: 'ID of task',
   })
   @ApiQuery({
     name: 'status',
@@ -147,10 +154,16 @@ export class TaskController {
   async fetchAll(
     @Query()
     query: PaginationDto,
-    @Query('sectionId') sectionId: string,
-    @Query('status') status: string,
+    @Query('sectionId') sectionId?: string,
+    @Query('taskId') taskId?: string,
+    @Query('status') status?: string,
   ) {
-    const data = await this.taskService.fetchAll(query, sectionId, status);
+    const data = await this.taskService.fetchAll(
+      query,
+      sectionId,
+      taskId,
+      status,
+    );
     return successResponse({
       message: 'Tasks retrieved',
       code: HttpStatus.OK,

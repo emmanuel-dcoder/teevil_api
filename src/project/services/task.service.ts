@@ -135,13 +135,24 @@ export class TaskService {
     }
   }
 
-  async fetchAll(query: PaginationDto, sectionId: string, status?: string) {
+  async fetchAll(
+    query: PaginationDto,
+    sectionId?: string,
+    taskId?: string,
+    status?: string,
+  ) {
     try {
       const { search, page = 1, limit = 10 } = query;
       const skip = (page - 1) * limit;
 
-      let filter: any = { section: new mongoose.Types.ObjectId(sectionId) };
+      let filter: any = {};
 
+      if (taskId) {
+        filter._id = new mongoose.Types.ObjectId(taskId);
+      }
+      if (sectionId) {
+        filter.section = new mongoose.Types.ObjectId(sectionId);
+      }
       if (status) {
         filter.status = status;
       }
