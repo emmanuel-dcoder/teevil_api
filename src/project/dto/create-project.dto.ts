@@ -12,7 +12,7 @@ import {
   IsEnum,
   IsBoolean,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { projectType } from '../enumAndTypes/project.enum';
 
 export class CreateProjectDto {
@@ -110,6 +110,16 @@ export class CreateTaskDto {
   })
   @IsArray()
   @IsMongoId({ each: true })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value); // if passed as '["id1","id2"]'
+      } catch {
+        return value.split(','); // if passed as 'id1,id2'
+      }
+    }
+    return value;
+  })
   assignedTo: string[];
 
   @ApiProperty({
@@ -141,6 +151,16 @@ export class CreateTaskDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value); // if passed as '["Subtask 1","Subtask 2"]'
+      } catch {
+        return value.split(','); // if passed as 'Subtask 1,Subtask 2'
+      }
+    }
+    return value;
+  })
   tasks?: string[];
 }
 

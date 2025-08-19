@@ -33,19 +33,21 @@ export class TaskService {
         createTaskDto;
 
       let taskImage;
-      if (files) {
+      if (files?.length) {
         taskImage = await this.uploadImages(files);
       }
 
-      //verify project
+      // Verify project
       const validateProject = await this.projectModel.findOne({
         _id: new mongoose.Types.ObjectId(project),
       });
 
-      if (!validateProject) throw new BadRequestException('Invalid project id');
+      if (!validateProject) {
+        throw new BadRequestException('Invalid project id');
+      }
 
+      // Handle subtasks
       let subTaskIds: mongoose.Types.ObjectId[] = [];
-
       if (tasks?.length) {
         const createdSubTasks = await this.subTaskModel.insertMany(
           tasks.map((title) => ({ subTitle: title })),
@@ -55,10 +57,12 @@ export class TaskService {
         );
       }
 
+      // Handle assigned users
       const assignedUserIds = assignedTo.map(
         (id) => new mongoose.Types.ObjectId(id),
       );
 
+      // Create task
       const task = await this.taskModel.create({
         ...restOfPayload,
         project: new mongoose.Types.ObjectId(project),
@@ -68,6 +72,7 @@ export class TaskService {
         subTasks: subTaskIds,
       });
 
+      // Send notification
       await this.notificationService.create({
         title: 'Task Created',
         content: `You just created a task for project: ${validateProject.title}`,

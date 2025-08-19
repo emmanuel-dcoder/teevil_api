@@ -35,7 +35,6 @@ import { PaginationDto } from 'src/core/common/pagination/pagination';
 @Controller('api/v1/tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
-
   @Post()
   @ApiOperation({ summary: 'Create a new task with optional subtasks' })
   @ApiResponse({

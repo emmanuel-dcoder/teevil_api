@@ -99,15 +99,20 @@ export class ProjectService {
 
       let invite;
       try {
+        //verify invitee
+        const validateFreelancer = await this.userModel.findOne({ email });
+        if (!validateFreelancer)
+          throw new NotFoundException('Invited user not registered on Teevil');
+
         //confirm if freelancer exist
         const freelancer = await this.userModel.findOne({ email });
         if (freelancer) {
           await this.notificationService.create({
             title: 'Project Invitation',
             userType: 'user',
-            content: `You have been invited to participate in a project: ${projectExists.title}`,
+            content: `You have been invited to participate in a project: ${projectExists.title}, you can either accept or decline the project`,
             notificationType: 'project',
-            user: `${freelancer._id}`,
+            user: `${validateFreelancer._id}`,
             projectId: `${projectExists.id}`,
           });
 
@@ -116,7 +121,6 @@ export class ProjectService {
             'Teevil: Project Invitation',
             {
               name: projectExists.title,
-              link: 'https://localhost.com',
             },
             'project_invite',
           );
