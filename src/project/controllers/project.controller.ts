@@ -22,7 +22,11 @@ import {
 } from '@nestjs/swagger';
 import { successResponse } from 'src/config/response';
 import { ProjectService } from '../services/project.service';
-import { CreateInviteDto, CreateProjectDto } from '../dto/create-project.dto';
+import {
+  AcceptProjectDto,
+  CreateInviteDto,
+  CreateProjectDto,
+} from '../dto/create-project.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 
@@ -219,13 +223,22 @@ export class ProjectController {
 
   @Post('accept/:projectId')
   @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: AcceptProjectDto })
   @ApiOperation({ summary: 'Accept project invite' })
   @ApiResponse({ status: 200, description: 'Project joined successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
-  async acceptProject(@Param('projectId') projectId: string, @Req() req: any) {
+  async acceptProject(
+    @Param('projectId') projectId: string,
+    @Req() req: any,
+    @Body() accepteProjectDto: AcceptProjectDto,
+  ) {
     const userId = req.user?._id;
     if (!userId) throw new UnauthorizedException('User not authenticated');
-    const data = await this.projectService.acceptProject(projectId, userId);
+    const data = await this.projectService.acceptProject(
+      projectId,
+      userId,
+      accepteProjectDto,
+    );
     return successResponse({
       message: 'Project joined successfully',
       code: HttpStatus.OK,

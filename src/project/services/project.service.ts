@@ -7,7 +7,11 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Project } from '../schemas/project.schema';
-import { CreateInviteDto, CreateProjectDto } from '../dto/create-project.dto';
+import {
+  AcceptProjectDto,
+  CreateInviteDto,
+  CreateProjectDto,
+} from '../dto/create-project.dto';
 import { Section } from '../schemas/section.schema';
 import { UpdateProjectDto } from '../dto/update-project.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
@@ -102,11 +106,26 @@ export class ProjectService {
         //verify invitee
         const validateFreelancer = await this.userModel.findOne({ email });
         if (!validateFreelancer)
-          throw new NotFoundException('Invited user not registered on Teevil');
+          throw new NotFoundException(
+            'Invited freelancer not registered on Teevil',
+          );
 
-        //confirm if freelancer exist
-        const freelancer = await this.userModel.findOne({ email });
-        if (freelancer) {
+        invite = await this.inviteModel.create({
+          email,
+          projectId: new mongoose.Types.ObjectId(projectId),
+          sections: sections.map((id) => new mongoose.Types.ObjectId(id)),
+        });
+
+        await this.mailService.sendMailNotification(
+          email,
+          'Teevil: Project Invitation',
+          {
+            name: projectExists.title,
+            link: 'https://localhost.com',
+          },
+          'project_invite',
+        );
+        if (validateFreelancer) {
           await this.notificationService.create({
             title: 'Project Invitation',
             userType: 'user',
@@ -132,29 +151,11 @@ export class ProjectService {
             userType: 'user',
             user: userId.toString(),
           });
-
-          return;
         }
-        invite = await this.inviteModel.create({
-          email,
-          projectId: new mongoose.Types.ObjectId(projectId),
-          sections: sections.map((id) => new mongoose.Types.ObjectId(id)),
-        });
-
-        await this.mailService.sendMailNotification(
-          email,
-          'Teevil: Project Invitation',
-          {
-            name: projectExists.title,
-            link: 'https://localhost.com',
-          },
-          'project_invite',
-        );
+        return invite;
       } catch (error) {
         console.log('email notification error:', error);
       }
-
-      return invite;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
@@ -276,8 +277,13 @@ export class ProjectService {
     }
   }
 
-  async acceptProject(projectId: string, userId: string) {
+  async acceptProject(
+    projectId: string,
+    userId: string,
+    body: AcceptProjectDto,
+  ) {
     try {
+      const { status } = body;
       const user = await this.userModel.findOne({
         _id: new mongoose.Types.ObjectId(userId),
       });
@@ -290,15 +296,19 @@ export class ProjectService {
         })) as any as PopulatedProjectDocument;
 
       if (!project) throw new NotFoundException('Project not found');
-      const userObjectId = new mongoose.Types.ObjectId(userId);
-      const alreadyAdded = project.usersAdded.some((id) =>
-        id.equals(userObjectId),
-      );
-      if (alreadyAdded) {
-        throw new BadRequestException('User already added to the project');
+
+      if (status === 'accepted') {
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        const alreadyAdded = project.usersAdded.some((id) =>
+          id.equals(userObjectId),
+        );
+        if (alreadyAdded) {
+          throw new BadRequestException('User already added to the project');
+        }
+        project.usersAdded.push(userObjectId);
+        await project.save();
       }
-      project.usersAdded.push(userObjectId);
-      await project.save();
+
       try {
         await this.mailService.sendMailNotification(
           project.createdBy?.email,
@@ -307,9 +317,18 @@ export class ProjectService {
             title: project.title,
             name: user.firstName,
             freelancer: project.createdBy.firstName,
+            status,
           },
           'project_update',
         );
+
+        await this.notificationService.create({
+          title: 'Project Notification Update',
+          content: `Your Project: ${project.title} has been ${status} by ${project.createdBy.firstName}`,
+          notificationType: 'Invite',
+          userType: 'user',
+          user: userId.toString(),
+        });
       } catch (error) {
         console.log('project inivitation error:', error);
       }

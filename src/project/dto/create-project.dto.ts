@@ -197,3 +197,12 @@ export class UpdateSubTaskDto {
   @IsMongoId()
   subTaskId: string;
 }
+
+export class AcceptProjectDto {
+  @ApiProperty({
+    description: `accept or reject a project based on invitation, e.g "accepted" or "rejected`,
+    example: 'rejected',
+  })
+  @IsString()
+  status: 'accepted' | 'rejected';
+}
