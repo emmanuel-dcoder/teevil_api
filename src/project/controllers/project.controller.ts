@@ -224,7 +224,7 @@ export class ProjectController {
   @Post('accept/:projectId')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ type: AcceptProjectDto })
-  @ApiOperation({ summary: 'Accept project invite' })
+  @ApiOperation({ summary: 'Accept or reject project invite' })
   @ApiResponse({ status: 200, description: 'Project joined successfully' })
   @ApiResponse({ status: 404, description: 'Project not found' })
   async acceptProject(
@@ -240,7 +240,7 @@ export class ProjectController {
       accepteProjectDto,
     );
     return successResponse({
-      message: 'Project joined successfully',
+      message: 'successful',
       code: HttpStatus.OK,
       status: 'success',
       data,
