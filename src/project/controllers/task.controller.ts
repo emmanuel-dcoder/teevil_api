@@ -50,7 +50,6 @@ export class TaskController {
         title: { type: 'string', example: 'Complete documentation' },
         content: { type: 'string', example: 'Task details' },
         priority: { type: 'string', enum: ['high', 'medium', 'low', 'casual'] },
-        // status: { type: 'string', enum: ['todo', 'in-progress', 'completed'] },
         section: { type: 'string', example: '613b6c3a5b41a2f123456789' },
         assignedTo: { type: 'array', items: { type: 'string' } },
         project: { type: 'string', example: '613b6c3a5b41a2f123456789' },
