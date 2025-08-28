@@ -4,10 +4,28 @@ import { AllExceptionsFilter } from './core/common/filters/all-exceptions.filter
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(
+    bodyParser.json({
+      verify: (req: any, res, buf) => {
+        if (req.headers['stripe-signature']) req.rawBody = buf;
+      },
+    }),
+  );
   const whitelist = ['*'];
+
+  app.use(helmet());
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   app.enableCors({
     origin: (origin, callback) => {
@@ -20,12 +38,17 @@ async function bootstrap() {
     credentials: true,
   });
 
+  /**
+   * Stripe needs raw body for webhook signature verification.
+   * This must be registered BEFORE the general JSON body parser.
+   */
   app.use(
     '/api/v1/transaction/stripe-webhook',
     bodyParser.raw({ type: 'application/json' }),
   );
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  // Normal JSON parsing for all other routes
+  app.use(bodyParser.json({ limit: '5mb' }));
 
   const config = new DocumentBuilder()
     .setTitle('Teevil backend')
@@ -41,6 +64,7 @@ async function bootstrap() {
 
   const adapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(adapterHost));
+
   await app.listen(process.env.PORT ?? 3000);
 
   console.log(`Application is running on: ${await app.getUrl()}`);

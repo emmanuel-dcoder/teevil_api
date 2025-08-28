@@ -37,16 +37,10 @@ export class StripePaymentIntentService {
   }
 
   constructWebhookEvent(payload: Buffer, signature: string) {
-    try {
-      return this.stripe.webhooks.constructEvent(
-        payload,
-        signature,
-        config.stripe.webhookSecret,
-      );
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Invalid Stripe Webhook Signature',
-      );
-    }
+    return this.stripe.webhooks.constructEvent(
+      payload,
+      signature,
+      config.stripe.webhookSecret, // 👈 must match your Dashboard webhook secret
+    );
   }
 }

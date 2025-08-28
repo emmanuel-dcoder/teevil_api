@@ -97,7 +97,7 @@ export class TransactionController {
     });
   }
 
-  //get total escrow balance for cleint
+  //get total escrow balance for client
   @ApiBearerAuth()
   @Get('escrow')
   @ApiOperation({
@@ -122,7 +122,7 @@ export class TransactionController {
     @Req() req: any,
     @Headers('stripe-signature') signature: string,
   ) {
-    console.log('request body', req.body);
-    return this.transactionService.stripeWebhook(req.body, signature);
+    const rawBody: Buffer = req.body;
+    return this.transactionService.stripeWebhook(rawBody, signature);
   }
 }

@@ -19,9 +19,9 @@ export class Transaction {
 
   @Prop({
     default: 'pending',
-    enum: ['pending', 'confirmed', 'failed', 'in-reveiew'],
+    enum: ['pending', 'confirmed', 'failed', 'in-reveiew', 'paid'],
   })
-  status: 'pending' | 'confirmed' | 'failed' | 'in-review';
+  status: 'pending' | 'confirmed' | 'failed' | 'in-review' | 'paid';
 
   @Prop({
     default: 'processing',

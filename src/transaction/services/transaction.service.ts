@@ -88,61 +88,71 @@ export class TransactionService {
     }
   }
 
-  async stripeWebhook(payload: Buffer, signature: string) {
+  async stripeWebhook(payload: Buffer | any, signature?: string) {
     try {
-      // Verify the event signature
-      const event = this.stripeService.constructWebhookEvent(
-        payload,
-        signature,
-      );
+      let event: Stripe.Event;
+
+      // If payload is still a Buffer + signature => verify with Stripe
+      if (Buffer.isBuffer(payload) && signature) {
+        event = this.stripeService.constructWebhookEvent(payload, signature);
+      } else {
+        // Otherwise, assume payload is already parsed (like your log shows)
+        event = payload as Stripe.Event;
+      }
 
       switch (event.type) {
         case 'payment_intent.succeeded': {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
-          try {
-            await this.transactionModel.findOneAndUpdate(
-              { transactionId: paymentIntent.id },
-              { status: 'paid' }, // Directly set to paid
-              { new: true },
-            );
-          } catch (err) {
-            console.error(
-              `Error updating transaction to paid for ${paymentIntent.id}:`,
-              err.message,
-            );
-          }
+          await this.transactionModel.findOneAndUpdate(
+            { transactionId: paymentIntent.id },
+            { status: 'paid' },
+            { new: true },
+          );
           break;
         }
 
         case 'payment_intent.payment_failed': {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
-          try {
-            await this.transactionModel.findOneAndUpdate(
-              { transactionId: paymentIntent.id },
-              { status: 'failed' },
-              { new: true },
-            );
-          } catch (err) {
-            console.error(
-              `Error updating transaction to failed for ${paymentIntent.id}:`,
-              err.message,
-            );
-          }
+          await this.transactionModel.findOneAndUpdate(
+            { transactionId: paymentIntent.id },
+            { status: 'failed' },
+            { new: true },
+          );
+          break;
+        }
+
+        case 'charge.succeeded': {
+          const charge = event.data.object as Stripe.Charge;
+
+          await this.transactionModel.findOneAndUpdate(
+            { transactionId: charge.payment_intent ?? charge.id },
+            { status: 'paid' },
+            { new: true },
+          );
+          break;
+        }
+
+        case 'charge.failed': {
+          const charge = event.data.object as Stripe.Charge;
+
+          await this.transactionModel.findOneAndUpdate(
+            { transactionId: charge.payment_intent ?? charge.id },
+            { status: 'failed' },
+            { new: true },
+          );
           break;
         }
 
         default:
-          console.log(`Unhandled event type: ${event.type}`);
+          console.log(`⚠️ Unhandled event type: ${event.type}`);
       }
 
-      // Always return OK for valid signatures
       return { received: true };
     } catch (error) {
-      // Only fail on invalid signatures
-      console.error('Stripe signature verification failed:', error.message);
-      throw new HttpException('Invalid Stripe Webhook Signature', 400);
+      console.error('❌ Stripe webhook handling failed:', error.message);
+      throw new HttpException('Invalid Stripe Webhook', 400);
     }
   }
 
