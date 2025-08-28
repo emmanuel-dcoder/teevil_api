@@ -201,7 +201,6 @@ export class ProposalController {
 
     const data = await this.proposalService.updateProposal(
       proposalStatusDto,
-      userId,
       id,
     );
     return successResponse({

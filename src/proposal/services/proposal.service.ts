@@ -219,7 +219,7 @@ export class ProposalService {
   }
 
   //update proposal status
-  async updateProposal(payload: ProposalStatusDto, userId: string, id: string) {
+  async updateProposal(payload: ProposalStatusDto, id: string) {
     try {
       if (!payload.status)
         throw new BadRequestException('Status cannot be empty');
