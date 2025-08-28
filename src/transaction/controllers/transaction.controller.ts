@@ -122,6 +122,7 @@ export class TransactionController {
     @Req() req: any,
     @Headers('stripe-signature') signature: string,
   ) {
+    console.log('request body', req.body);
     return this.transactionService.stripeWebhook(req.body, signature);
   }
 }

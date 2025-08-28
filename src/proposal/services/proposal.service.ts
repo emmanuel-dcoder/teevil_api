@@ -227,7 +227,6 @@ export class ProposalService {
 
       const verifyProposal = await this.proposalModel
         .findOne({
-          submittedBy: new mongoose.Types.ObjectId(userId),
           _id: new mongoose.Types.ObjectId(id),
         })
         .populate({
