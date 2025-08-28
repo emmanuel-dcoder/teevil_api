@@ -27,7 +27,7 @@ export class Proposal {
     default: 'pending',
     enum: ['pending', 'accepted', 'rejected', 'under-review'],
   })
-  status: 'pending' | 'accepted' | 'rejected' | 'under-review';
+  status: string;
 }
 
 export const ProposalSchema = SchemaFactory.createForClass(Proposal);

@@ -184,14 +184,17 @@ export class ProposalController {
     });
   }
 
-  @Put()
+  @Put(':id')
   @ApiBody({ type: ProposalStatusDto })
-  @ApiOperation({ summary: 'Update proposal status' })
+  @ApiOperation({
+    summary: 'Update proposal status e.g "accepted", "rejected"',
+  })
   @ApiResponse({ status: 201, description: 'Proposal Status updated' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async proposalStatus(
     @Req() req: any,
-    @Body() proposalStatusDto: 'accepted' | 'rejected',
+    @Body() proposalStatusDto: ProposalStatusDto,
+    @Param('id') id: string,
   ) {
     const userId = req.user?._id;
     if (!userId) throw new UnauthorizedException('User not authenticated');
@@ -199,6 +202,7 @@ export class ProposalController {
     const data = await this.proposalService.updateProposal(
       proposalStatusDto,
       userId,
+      id,
     );
     return successResponse({
       message: 'Proposal Status updated',

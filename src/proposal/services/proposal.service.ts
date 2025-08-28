@@ -7,7 +7,10 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Proposal } from '../schemas/proposal.schema';
-import { CreateProposalDto } from '../dto/create-proposal.dto';
+import {
+  CreateProposalDto,
+  ProposalStatusDto,
+} from '../dto/create-proposal.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { Job } from 'src/job/schemas/job.schema';
 import { MailService } from 'src/core/mail/email';
@@ -216,13 +219,16 @@ export class ProposalService {
   }
 
   //update proposal status
-  async updateProposal(status: 'accepted' | 'rejected', userId: string) {
+  async updateProposal(payload: ProposalStatusDto, userId: string, id: string) {
     try {
-      if (!status) throw new BadRequestException('Status cannot be empty');
+      if (!payload.status)
+        throw new BadRequestException('Status cannot be empty');
+      const { status } = payload;
 
       const verifyProposal = await this.proposalModel
         .findOne({
           submittedBy: new mongoose.Types.ObjectId(userId),
+          _id: new mongoose.Types.ObjectId(id),
         })
         .populate({
           path: 'submittedBy',
@@ -231,7 +237,7 @@ export class ProposalService {
         });
 
       if (!verifyProposal)
-        throw new BadRequestException('Unauthorized to update');
+        throw new BadRequestException('Unauthorized to update this proposal');
 
       verifyProposal.status = status;
       await verifyProposal.save();
