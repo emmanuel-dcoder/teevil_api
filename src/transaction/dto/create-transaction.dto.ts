@@ -12,11 +12,11 @@ export class CreateTransactionDto {
 
   @ApiProperty({
     example: '662aa983714edbe3f503616c',
-    description: 'id of the project',
+    description: 'id of the job',
   })
   @IsString()
   @IsMongoId()
-  project: string;
+  job: string;
 
   @ApiProperty({
     example: 700,

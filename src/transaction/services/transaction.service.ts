@@ -7,26 +7,27 @@ import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import Stripe from 'stripe';
 import { Project } from 'src/project/schemas/project.schema';
+import { Job } from 'src/job/schemas/job.schema';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
-    @InjectModel(Project.name) private projectModel: Model<Project>,
+    @InjectModel(Job.name) private jobModel: Model<Job>,
     private readonly stripeService: StripePaymentIntentService,
   ) {}
 
   async initiatePayment(payload: CreateTransactionDto & { client: string }) {
     try {
-      const { freelancer, client, project, amount } = payload;
+      const { freelancer, client, job, amount } = payload;
 
       //check if project exist
-      const verifyProject = await this.projectModel.findOne({
-        _id: new mongoose.Types.ObjectId(project),
+      const validateJob = await this.jobModel.findOne({
+        _id: new mongoose.Types.ObjectId(job),
         createdBy: new mongoose.Types.ObjectId(client),
       });
 
-      if (!verifyProject) throw new BadRequestException('Invalid project id');
+      if (!validateJob) throw new BadRequestException('Invalid project id');
 
       const stripePayment =
         await this.stripeService.createPaymentIntent(amount);
@@ -34,7 +35,7 @@ export class TransactionService {
       const transaction = await this.transactionModel.create({
         freelancer: new mongoose.Types.ObjectId(freelancer),
         client: new mongoose.Types.ObjectId(client),
-        project: new mongoose.Types.ObjectId(project),
+        job: new mongoose.Types.ObjectId(job),
         amount,
         channel: 'stripe',
         paymentType: 'card',

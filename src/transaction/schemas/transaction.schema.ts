@@ -14,8 +14,8 @@ export class Transaction {
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User', required: true })
   freelancer: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Types.ObjectId, ref: 'Project', required: true })
-  project: mongoose.Types.ObjectId;
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'Job', required: true })
+  job: mongoose.Types.ObjectId;
 
   @Prop({
     default: 'pending',
