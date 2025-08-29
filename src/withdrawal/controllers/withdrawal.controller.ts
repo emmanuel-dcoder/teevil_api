@@ -136,7 +136,7 @@ export class WithdrawalController {
 
   @Put(':id/approval')
   @ApiOperation({
-    summary: 'Update withdrawal approval status (accepted/rejected)',
+    summary: 'Update withdrawal approval status (approved/rejected)',
   })
   @ApiBody({ type: ApprovalStatausDto })
   @ApiResponse({
