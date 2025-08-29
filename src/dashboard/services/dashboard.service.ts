@@ -140,7 +140,7 @@ export class DashboardService {
           {
             $match: {
               freelancer: userId,
-              status: 'confirm',
+              status: 'paid',
             },
           },
           {
@@ -154,8 +154,8 @@ export class DashboardService {
           {
             $match: {
               freelancer: userId,
-              status: 'confirm',
-              payoutStatus: 'pending',
+              status: 'paid',
+              payoutStatus: 'processing',
             },
           },
           {
@@ -169,8 +169,8 @@ export class DashboardService {
           {
             $match: {
               freelancer: userId,
-              status: 'confirm',
-              payoutStatus: 'confirm',
+              status: 'paid',
+              payoutStatus: 'paid',
             },
           },
           {

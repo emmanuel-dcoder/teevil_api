@@ -224,6 +224,7 @@ export class TransactionService {
           $match: {
             client: new mongoose.Types.ObjectId(userId),
             payoutStatus: 'processing',
+            status: 'paid',
           },
         },
         {
