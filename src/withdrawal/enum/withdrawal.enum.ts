@@ -9,3 +9,10 @@ export enum WithdrawalMethod {
   paypal = 'paypal',
   bankTransfer = 'bank-transfer',
 }
+
+export enum WithdrawalApprovalStatus {
+  pending = 'pending',
+  approved = 'approved',
+  rejected = 'rejected',
+  review = 'in-review',
+}

@@ -5,16 +5,21 @@ import { PaginationDto } from 'src/core/common/pagination/pagination';
 import { Withdrawal } from '../schemas/withdrawal.schema';
 import { CreateWithdrawalDto } from '../dto/create-withdrawal.dto';
 import { User } from 'src/user/schemas/user.schema';
-import { WithdrawalStatus } from '../enum/withdrawal.enum';
+import {
+  WithdrawalApprovalStatus,
+  WithdrawalStatus,
+} from '../enum/withdrawal.enum';
 import { AlphaNumeric } from 'src/core/common/utils/authentication';
 import { MailService } from 'src/core/mail/email';
 import { NotificationService } from 'src/notification/services/notification.service';
+import { Job, JobDocument } from 'src/job/schemas/job.schema';
 
 @Injectable()
 export class WithdrawalService {
   constructor(
     @InjectModel(Withdrawal.name) private withdrawalModel: Model<Withdrawal>,
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Job.name) private jobModel: Model<Job>,
     private readonly notificationService: NotificationService,
     private readonly mailService: MailService,
   ) {}
@@ -23,7 +28,13 @@ export class WithdrawalService {
     payload: CreateWithdrawalDto & { freelancerId: string },
   ) {
     try {
-      const { freelancerId } = payload;
+      const { freelancerId, job } = payload;
+
+      const validateJob = await this.jobModel.findOne({
+        _id: new mongoose.Types.ObjectId(job),
+      });
+
+      if (!validateJob) throw new BadRequestException('Invalid job id');
 
       //validate freelancer
       const freelancer = await this.userModel.findOne({
@@ -32,14 +43,6 @@ export class WithdrawalService {
 
       if (!freelancer) throw new BadRequestException('Invalid freelancer id');
 
-      /**
-       *
-       * put a check to ascertain the wallet balance of the freelancer here before create or requesting withdrawal
-       */
-
-      /**
-       * also make that transaction payout status is set to confirm once withrawal is successful
-       */
       let transactionId;
       let validateTransactionId;
 
@@ -53,6 +56,7 @@ export class WithdrawalService {
       //create withdrawal
       const withdrawal = await this.withdrawalModel.create({
         freelancer: new mongoose.Types.ObjectId(freelancerId),
+        job: new mongoose.Types.ObjectId(job),
         status: WithdrawalStatus.review,
         transactionId,
         ...payload,
@@ -89,11 +93,14 @@ export class WithdrawalService {
   }
 
   async findFreelancerWithdrawal(
-    query: PaginationDto & { status?: string },
+    query: PaginationDto & {
+      status?: string;
+      approvalStatus?: WithdrawalApprovalStatus;
+    },
     userId: string,
   ) {
     try {
-      const { search, page = 1, limit = 10, status } = query;
+      const { search, page = 1, limit = 10, status, approvalStatus } = query;
       const skip = (page - 1) * limit;
 
       const filter: any = {
@@ -104,19 +111,32 @@ export class WithdrawalService {
         filter.status = status;
       }
 
+      if (approvalStatus) {
+        filter.approvalStatus = approvalStatus;
+      }
+
       if (search) {
         filter.$or.push(
-          { paymentType: { $regex: search, $options: 'i' } },
+          { transactionId: { $regex: search, $options: 'i' } },
           { status: { $regex: search, $options: 'i' } },
         );
       }
 
-      const withdrawal = await this.withdrawalModel
+      const withdrawals = await this.withdrawalModel
         .find(filter)
         .populate({
           path: 'freelancer',
           model: 'User',
           select: 'firstName lastName profileImage email',
+        })
+        .populate({
+          path: 'job',
+          model: 'Job',
+          populate: {
+            path: 'createdBy',
+            model: 'User',
+            select: 'firstName lastName profileImage email',
+          },
         })
         .skip(skip)
         .limit(limit);
@@ -128,8 +148,116 @@ export class WithdrawalService {
         page,
         limit,
         totalPages: Math.ceil(total / limit),
-        data: withdrawal,
+        data: withdrawals,
       };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  //fetch payment request
+  async findClientWithdrawal(
+    query: PaginationDto & {
+      status?: string;
+      approvalStatus?: WithdrawalApprovalStatus;
+    },
+    userId: string,
+  ) {
+    try {
+      const { search, page = 1, limit = 10, status, approvalStatus } = query;
+      const skip = (page - 1) * limit;
+
+      // Build filter object
+      const filter: any = {};
+      if (status) filter.status = status;
+      if (approvalStatus) filter.approvalStatus = approvalStatus;
+
+      if (search) {
+        filter.$or = [
+          { transactionId: { $regex: search, $options: 'i' } },
+          { status: { $regex: search, $options: 'i' } },
+        ];
+      }
+
+      // Get withdrawals with populated job + createdBy
+      const withdrawals = await this.withdrawalModel
+        .find(filter)
+        .populate({
+          path: 'freelancer',
+          model: 'User',
+          select: 'firstName lastName profileImage email',
+        })
+        .populate({
+          path: 'job',
+          model: 'Job',
+          populate: {
+            path: 'createdBy',
+            model: 'User',
+            select: 'firstName lastName email profileImage',
+          },
+        })
+        .skip(skip)
+        .limit(limit);
+
+      // Filter results where job.createdBy === logged-in user
+      const filteredWithdrawals = withdrawals.filter((w) => {
+        const job = w.job as unknown as JobDocument;
+        return job?.createdBy?.toString() === userId.toString();
+      });
+
+      return {
+        total: filteredWithdrawals.length,
+        page,
+        limit,
+        totalPages: Math.ceil(filteredWithdrawals.length / limit),
+        data: filteredWithdrawals,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error?.response?.message ?? error?.message,
+        error?.status ?? 500,
+      );
+    }
+  }
+
+  async updateApprovalStatus(
+    withdrawalId: string,
+    status: WithdrawalApprovalStatus,
+  ) {
+    try {
+      if (
+        ![
+          WithdrawalApprovalStatus.approved,
+          WithdrawalApprovalStatus.rejected,
+        ].includes(status)
+      ) {
+        throw new BadRequestException('Invalid approval status');
+      }
+
+      const withdrawal = await this.withdrawalModel.findById(withdrawalId);
+      if (!withdrawal) {
+        throw new BadRequestException('Withdrawal not found');
+      }
+
+      withdrawal.approvalStatus = status;
+      await withdrawal.save();
+
+      try {
+        await this.notificationService.create({
+          title: 'Withdrawal Approval Update',
+          content: `Your withdrawal request of ${withdrawal.amount} has been ${status}`,
+          notificationType: 'Withdrawal',
+          userType: 'user',
+          user: withdrawal.freelancer.toString(),
+        });
+      } catch (err) {
+        console.log('Notification error', err);
+      }
+
+      return withdrawal;
     } catch (error) {
       throw new HttpException(
         error?.response?.message ?? error?.message,
@@ -162,6 +290,10 @@ export class WithdrawalService {
           path: 'freelancer',
           model: 'User',
           select: 'firstName lastName profileImage email',
+        })
+        .populate({
+          path: 'job',
+          model: 'Job',
         })
         .skip(skip)
         .limit(limit);

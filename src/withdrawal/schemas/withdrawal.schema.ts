@@ -1,6 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { WithdrawalMethod, WithdrawalStatus } from '../enum/withdrawal.enum';
+import {
+  WithdrawalApprovalStatus,
+  WithdrawalMethod,
+  WithdrawalStatus,
+} from '../enum/withdrawal.enum';
+import { JobDocument } from 'src/job/schemas/job.schema';
 
 export type WithdrawalDocument = Withdrawal & Document;
 
@@ -15,11 +20,20 @@ export class Withdrawal {
   @Prop({ type: mongoose.Types.ObjectId, ref: 'User', required: true })
   freelancer: mongoose.Types.ObjectId;
 
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'Job', required: true })
+  job: mongoose.Types.ObjectId | JobDocument;
+
   @Prop({
     enum: WithdrawalStatus,
     default: WithdrawalStatus.pending,
   })
   status: WithdrawalStatus;
+
+  @Prop({
+    enum: WithdrawalApprovalStatus,
+    default: WithdrawalApprovalStatus.pending,
+  })
+  approvalStatus: WithdrawalApprovalStatus;
 
   @Prop({
     required: true,

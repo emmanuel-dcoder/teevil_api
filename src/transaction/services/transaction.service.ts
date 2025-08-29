@@ -6,7 +6,6 @@ import { StripePaymentIntentService } from 'src/provider/stripe/stripe-payment-i
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { PaginationDto } from 'src/core/common/pagination/pagination';
 import Stripe from 'stripe';
-import { Project } from 'src/project/schemas/project.schema';
 import { Job } from 'src/job/schemas/job.schema';
 
 @Injectable()
@@ -197,6 +196,7 @@ export class TransactionService {
           select: 'firstName lastName profileImage email',
         })
         .populate({ path: 'project', model: 'Project' })
+        .populate({ path: 'job', model: 'Job' })
         .skip(skip)
         .limit(limit);
 

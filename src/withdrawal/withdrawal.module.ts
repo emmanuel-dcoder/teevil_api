@@ -11,11 +11,13 @@ import {
   Notification,
   NotificationSchema,
 } from 'src/notification/schemas/notification.schema';
+import { Job, JobSchema } from 'src/job/schemas/job.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Withdrawal.name, schema: WithdrawalSchema },
+      { name: Job.name, schema: JobSchema },
       { name: User.name, schema: UserSchema },
       { name: Notification.name, schema: NotificationSchema },
     ]),
