@@ -197,9 +197,6 @@ export class WithdrawalService {
         .skip(skip)
         .limit(limit);
 
-      console.log('withdrawals', withdrawals);
-      console.log('userId', userId);
-
       // Filter results where job.createdBy === logged-in user
       const filteredWithdrawals = withdrawals.filter((w) => {
         const job = w.job as unknown as JobDocument;
