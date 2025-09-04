@@ -193,20 +193,20 @@ export class WithdrawalService {
         .populate({
           path: 'job',
           model: 'Job',
-          populate: {
-            path: 'createdBy',
-            model: 'User',
-            select: 'firstName lastName email profileImage',
-          },
         })
         .skip(skip)
         .limit(limit);
+
+      console.log('withdrawals', withdrawals);
+      console.log('userId', userId);
 
       // Filter results where job.createdBy === logged-in user
       const filteredWithdrawals = withdrawals.filter((w) => {
         const job = w.job as unknown as JobDocument;
         return job?.createdBy?.toString() === userId.toString();
       });
+
+      console.log('filteredWithdrawals', filteredWithdrawals);
 
       return {
         total: filteredWithdrawals.length,
