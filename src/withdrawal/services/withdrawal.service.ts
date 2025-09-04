@@ -206,8 +206,6 @@ export class WithdrawalService {
         return job?.createdBy?.toString() === userId.toString();
       });
 
-      console.log('filteredWithdrawals', filteredWithdrawals);
-
       return {
         total: filteredWithdrawals.length,
         page,
