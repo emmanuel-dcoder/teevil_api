@@ -12,6 +12,7 @@ import {
   Get,
   Req,
   UnauthorizedException,
+  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -48,7 +49,7 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('delete/email')
+  @Delete('delete/email')
   @ApiOperation({
     summary: 'delete user by email',
   })

@@ -8,7 +8,7 @@ export class Invite {
   @Prop({ required: true })
   email: string;
 
-  @Prop({ type: mongoose.Types.ObjectId, ref: 'User' })
+  @Prop({ type: mongoose.Types.ObjectId, ref: 'Project' })
   projectId: mongoose.Types.ObjectId;
 
   @Prop({ type: [{ type: mongoose.Types.ObjectId, ref: 'Section' }] })
