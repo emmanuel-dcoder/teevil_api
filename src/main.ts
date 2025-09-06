@@ -4,6 +4,7 @@ import { AllExceptionsFilter } from './core/common/filters/all-exceptions.filter
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import helmet from 'helmet';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,13 +19,13 @@ async function bootstrap() {
 
   app.use(helmet());
 
-  // app.useGlobalPipes(
-  //   new ValidationPipe({
-  //     whitelist: true,
-  //     forbidNonWhitelisted: true,
-  //     transform: true,
-  //   }),
-  // );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: false,
+      transform: false,
+    }),
+  );
 
   app.enableCors({
     origin: (origin, callback) => {
