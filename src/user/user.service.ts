@@ -48,6 +48,15 @@ export class UserService {
     private readonly notificationService: NotificationService,
   ) {}
 
+  //delete user
+  async deleteUserByMail(data: { email: string }) {
+    const { email } = data;
+    if (!email)
+      throw new BadGatewayException('email field cannot be null or empty');
+    await this.userModel.findOneAndDelete({ email });
+    return 'User deleted successfully';
+  }
+
   async createQuestion(
     questionTypeDto: FreelancerQuestionTypeListDto | ClientQuestionTypeListDto,
   ) {

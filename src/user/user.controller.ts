@@ -48,6 +48,26 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Post('delete/email')
+  @ApiOperation({
+    summary: 'delete user by email',
+  })
+  @ApiBody({
+    schema: {
+      properties: { email: { type: 'string', example: 'joseph@gmail.com' } },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'User deleted' })
+  @ApiResponse({ status: 401, description: 'Unable to delete user' })
+  async deleteUserByEmail(@Body() email: { email: string }) {
+    await this.userService.deleteUserByMail(email);
+    return successResponse({
+      message: 'User deleted',
+      code: HttpStatus.OK,
+      status: 'success',
+    });
+  }
+
   @Post()
   @ApiOperation({
     summary: 'Create User',
